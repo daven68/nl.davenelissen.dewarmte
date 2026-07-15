@@ -1,0 +1,22 @@
+{
+  "name": {
+    "en": "DeWarmte Heat Pump",
+    "nl": "DeWarmte Warmtepomp"
+  },
+  "class": "thermostat",
+  "capabilities": [
+    "measure_temperature",
+    "target_temperature",
+    "alarm_generic"
+  ],
+  "images": {
+    "small": "/assets/images/75x75.png",
+    "large": "/assets/images/500x500.png"
+  },
+  "pair": [
+    {
+      "id": "login",
+      "template": "login"
+    }
+  ]
+}

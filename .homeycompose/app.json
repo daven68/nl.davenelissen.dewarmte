@@ -1,0 +1,30 @@
+{
+  "id": "nl.davenelissen.dewarmte",
+  "version": "1.0.0",
+  "compatibility": ">=12.4.0",
+  "sdk": 3,
+  "brandColor": "#1273DC",
+  "runtime": "nodejs",
+  "platforms": [
+    "local"
+  ],
+  "name": {
+    "en": "DeWarmte"
+  },
+  "description": {
+    "en": "warmtepomp"
+  },
+  "category": [
+    "climate"
+  ],
+  "permissions": [],
+  "images": {
+    "small": "/assets/images/small.png",
+    "large": "/assets/images/large.png",
+    "xlarge": "/assets/images/xlarge.png"
+  },
+  "author": {
+    "name": "Dave Nelissen",
+    "email": "evennogfake@me.com"
+  }
+}
