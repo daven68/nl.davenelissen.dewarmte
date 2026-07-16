@@ -2,57 +2,54 @@
 <html>
 <head>
   <meta charset="utf-8" />
-  <style>
-    body {
-      font-family: sans-serif;
-      padding: 20px;
-    }
-
-    input {
-      width: 100%;
-      box-sizing: border-box;
-      margin-bottom: 12px;
-      padding: 10px;
-      font-size: 15px;
-    }
-
-    button {
-      width: 100%;
-      padding: 12px;
-      font-size: 16px;
-      cursor: pointer;
-    }
-
-    #error {
-      color: red;
-      margin-top: 12px;
-    }
-  </style>
+  <style>#error { color: var(--homey-color-red, #d32f2f); margin-top: 12px; }</style>
 </head>
 
 <body>
 
-<h2>Inloggen op DeWarmte</h2>
+<header class="homey-header">
+  <h1 class="homey-title">Inloggen op DeWarmte</h1>
+  <p class="homey-subtitle">Gebruik je DeWarmte-account om je warmtepomp te vinden.</p>
+</header>
 
-<input
-  id="email"
-  type="email"
-  placeholder="E-mailadres"
-/>
+<form id="login-form" class="homey-form">
+  <label class="homey-form-label" for="email">E-mailadres</label>
+  <input id="email" class="homey-form-input" type="email" autocomplete="username" required />
 
-<input
-  id="password"
-  type="password"
-  placeholder="Wachtwoord"
-/>
+  <label class="homey-form-label" for="password">Wachtwoord</label>
+  <input id="password" class="homey-form-input" type="password" autocomplete="current-password" required />
 
-<button id="login">
-  Inloggen
-</button>
+  <button id="login" class="homey-button-primary" type="submit">Inloggen</button>
+</form>
 
-<div id="error"></div>
+<p id="error" role="alert" aria-live="polite"></p>
 
-<script src="custom_login.js"></script>
+<script type="application/javascript">
+  (() => {
+    const form = document.getElementById('login-form');
+    const loginButton = document.getElementById('login');
+    const errorElement = document.getElementById('error');
+
+    form.addEventListener('submit', async event => {
+      event.preventDefault();
+      errorElement.textContent = '';
+      loginButton.disabled = true;
+
+      try {
+        await Homey.emit('login', {
+          email: document.getElementById('email').value.trim(),
+          password: document.getElementById('password').value,
+        });
+
+        await Homey.nextView();
+      } catch (error) {
+        errorElement.textContent = error.message || 'Inloggen bij DeWarmte is mislukt.';
+      } finally {
+        loginButton.disabled = false;
+      }
+    });
+  })();
+</script>
 
 </body>
 </html>
