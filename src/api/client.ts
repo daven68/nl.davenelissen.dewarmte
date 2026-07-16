@@ -6,6 +6,8 @@ import axios, {
 
 export class DeWarmteClient {
   private client: AxiosInstance;
+  private accessToken?: string;
+  private refreshToken?: string;
 
   constructor() {
     this.client = axios.create({
@@ -17,8 +19,26 @@ export class DeWarmteClient {
     });
   }
 
-  public setAccessToken(token: string) {
+  public setAccessToken(token: string): void {
+    this.accessToken = token;
     this.client.defaults.headers.common.Authorization = `Bearer ${token}`;
+  }
+
+  public setRefreshToken(token: string): void {
+    this.refreshToken = token;
+  }
+
+  public setTokens(accessToken: string, refreshToken: string): void {
+    this.setAccessToken(accessToken);
+    this.setRefreshToken(refreshToken);
+  }
+
+  public getAccessToken(): string | undefined {
+    return this.accessToken;
+  }
+
+  public getRefreshToken(): string | undefined {
+    return this.refreshToken;
   }
 
   public async get<T>(url: string): Promise<T> {

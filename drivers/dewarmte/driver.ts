@@ -55,6 +55,11 @@ export = class DeWarmteDriver extends Homey.Driver {
       try {
 
         const productList = await products.getProducts();
+        const refreshToken = client.getRefreshToken();
+
+        if (!refreshToken) {
+          throw new Error('DeWarmte refresh token is missing');
+        }
 
         this.log(`Found ${productList.length} products`);
 
@@ -69,6 +74,10 @@ export = class DeWarmteDriver extends Homey.Driver {
           settings: {
             productId: product.id,
             model: product.type,
+          },
+
+          store: {
+            refreshToken,
           },
 
         }));
