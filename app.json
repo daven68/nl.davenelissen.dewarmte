@@ -46,8 +46,7 @@
       },
       "pair": [
         {
-          "id": "login",
-          "template": "login"
+          "id": "custom_login"
         }
       ],
       "id": "dewarmte"

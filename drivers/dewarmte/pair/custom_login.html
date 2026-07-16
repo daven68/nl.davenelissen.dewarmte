@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8" />
+  <style>
+    body {
+      font-family: sans-serif;
+      padding: 20px;
+    }
+
+    input {
+      width: 100%;
+      box-sizing: border-box;
+      margin-bottom: 12px;
+      padding: 10px;
+      font-size: 15px;
+    }
+
+    button {
+      width: 100%;
+      padding: 12px;
+      font-size: 16px;
+      cursor: pointer;
+    }
+
+    #error {
+      color: red;
+      margin-top: 12px;
+    }
+  </style>
+</head>
+
+<body>
+
+<h2>Inloggen op DeWarmte</h2>
+
+<input
+  id="email"
+  type="email"
+  placeholder="E-mailadres"
+/>
+
+<input
+  id="password"
+  type="password"
+  placeholder="Wachtwoord"
+/>
+
+<button id="login">
+  Inloggen
+</button>
+
+<div id="error"></div>
+
+<script src="custom_login.js"></script>
+
+</body>
+</html>
