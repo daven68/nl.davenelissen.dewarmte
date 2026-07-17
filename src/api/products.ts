@@ -1,5 +1,6 @@
 import { DeWarmteClient } from './client';
 import {
+  HeatCurveSettings,
   OperationSettingsResponse,
   Product,
   ProductListResponse,
@@ -40,5 +41,44 @@ export class ProductService {
     return this.client.get<OperationSettingsResponse>(
       `/customer/products/${productId}/settings/`
     );
+  }
+
+  /**
+   * Retourneert uitsluitend de warmtelijninstellingen van een warmtepomp.
+   */
+  async getHeatCurveSettings(productId: string): Promise<HeatCurveSettings> {
+    const settings = await this.getOperationSettings(productId);
+    return this.extractHeatCurveSettings(settings);
+  }
+
+  /**
+   * Werkt de volledige warmtelijngroep van een warmtepomp bij.
+   */
+  async updateHeatCurve(
+    productId: string,
+    settings: HeatCurveSettings
+  ): Promise<unknown> {
+    const body = this.extractHeatCurveSettings(settings);
+
+    return this.client.post<unknown>(
+      `/customer/products/${productId}/settings/heat-curve/`,
+      body
+    );
+  }
+
+  private extractHeatCurveSettings(
+    settings: HeatCurveSettings
+  ): HeatCurveSettings {
+    return {
+      heat_curve_mode: settings.heat_curve_mode,
+      heating_kind: settings.heating_kind,
+      heat_curve_s1_outside_temp: settings.heat_curve_s1_outside_temp,
+      heat_curve_s1_target_temp: settings.heat_curve_s1_target_temp,
+      heat_curve_s2_outside_temp: settings.heat_curve_s2_outside_temp,
+      heat_curve_s2_target_temp: settings.heat_curve_s2_target_temp,
+      heat_curve_fixed_temperature: settings.heat_curve_fixed_temperature,
+      heat_curve_use_smart_correction:
+        settings.heat_curve_use_smart_correction,
+    };
   }
 }

@@ -23,15 +23,14 @@ async function main() {
   console.log('✅ Login successful');
 
   const product = await products.getProduct();
-  const settings = await products.getOperationSettings(product.id);
+  const heatCurveSettings = await products.getHeatCurveSettings(product.id);
 
   console.log('✅ Product gevonden');
   console.log(`ID        : ${product.id}`);
   console.log(`Naam      : ${product.nickname}`);
   console.log(`Model     : ${product.type}`);
-  console.log(`Doel      : ${product.status.target_temperature}°C`);
-  console.log('Instellingen:');
-  console.log(JSON.stringify(settings, null, 2));
+  console.log('Warmtelijninstellingen:');
+  console.log(JSON.stringify(heatCurveSettings, null, 2));
 }
 
 main().catch((err) => {

@@ -34,6 +34,17 @@ export interface ProductListResponse {
   results: Product[];
 }
 
-export interface OperationSettingsResponse {
+export interface HeatCurveSettings {
+  heat_curve_mode: string;
+  heating_kind: string;
+  heat_curve_s1_outside_temp: number;
+  heat_curve_s1_target_temp: number;
+  heat_curve_s2_outside_temp: number;
+  heat_curve_s2_target_temp: number;
+  heat_curve_fixed_temperature: number;
+  heat_curve_use_smart_correction: boolean;
+}
+
+export interface OperationSettingsResponse extends HeatCurveSettings {
   [key: string]: unknown;
 }
