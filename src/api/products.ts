@@ -1,4 +1,9 @@
 import { DeWarmteClient } from './client';
+import { HeatCurve } from '../domain/HeatCurve';
+import {
+  heatCurveSettingsToHeatCurve,
+  heatCurveToHeatCurveSettings,
+} from '../domain/HeatCurveMapper';
 import {
   HeatCurveSettings,
   OperationSettingsResponse,
@@ -52,6 +57,14 @@ export class ProductService {
   }
 
   /**
+   * Retourneert de warmtelijn als intern domeinmodel.
+   */
+  async getHeatCurve(productId: string): Promise<HeatCurve> {
+    const settings = await this.getHeatCurveSettings(productId);
+    return heatCurveSettingsToHeatCurve(settings);
+  }
+
+  /**
    * Werkt de volledige warmtelijngroep van een warmtepomp bij.
    */
   async updateHeatCurve(
@@ -64,6 +77,18 @@ export class ProductService {
       `/customer/products/${productId}/settings/heat-curve/`,
       body
     );
+  }
+
+  /**
+   * Slaat het interne warmtelijnmodel op en leest de opgeslagen waarde terug.
+   */
+  async saveHeatCurve(
+    productId: string,
+    heatCurve: HeatCurve
+  ): Promise<HeatCurve> {
+    const settings = heatCurveToHeatCurveSettings(heatCurve);
+    await this.updateHeatCurve(productId, settings);
+    return this.getHeatCurve(productId);
   }
 
   private extractHeatCurveSettings(
