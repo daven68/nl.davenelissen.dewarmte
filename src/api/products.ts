@@ -1,5 +1,9 @@
 import { DeWarmteClient } from './client';
-import { Product, ProductListResponse } from './types';
+import {
+  OperationSettingsResponse,
+  Product,
+  ProductListResponse,
+} from './types';
 
 export class ProductService {
   constructor(private client: DeWarmteClient) {}
@@ -25,5 +29,16 @@ export class ProductService {
   async getProduct(): Promise<Product> {
     const products = await this.getProducts();
     return products[0];
+  }
+
+  /**
+   * Retourneert de operationele instellingen van een warmtepomp.
+   */
+  async getOperationSettings(
+    productId: string
+  ): Promise<OperationSettingsResponse> {
+    return this.client.get<OperationSettingsResponse>(
+      `/customer/products/${productId}/settings/`
+    );
   }
 }

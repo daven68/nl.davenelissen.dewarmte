@@ -6,6 +6,12 @@ async function main() {
   const email = process.env.DEWARMTE_EMAIL;
   const password = process.env.DEWARMTE_PASSWORD;
 
+  if (!email || !password) {
+    throw new Error(
+      'DEWARMTE_EMAIL and DEWARMTE_PASSWORD environment variables are required'
+    );
+  }
+
   const client = new DeWarmteClient();
   const auth = new AuthService(client);
   const products = new ProductService(client);
@@ -17,14 +23,15 @@ async function main() {
   console.log('✅ Login successful');
 
   const product = await products.getProduct();
+  const settings = await products.getOperationSettings(product.id);
 
   console.log('✅ Product gevonden');
+  console.log(`ID        : ${product.id}`);
   console.log(`Naam      : ${product.nickname}`);
   console.log(`Model     : ${product.type}`);
-  console.log(`Verbonden : ${product.status.is_connected}`);
-  console.log(`Aanvoer   : ${product.status.supply_temperature}°C`);
-  console.log(`Actueel   : ${product.status.actual_temperature}°C`);
   console.log(`Doel      : ${product.status.target_temperature}°C`);
+  console.log('Instellingen:');
+  console.log(JSON.stringify(settings, null, 2));
 }
 
 main().catch((err) => {

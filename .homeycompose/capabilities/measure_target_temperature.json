@@ -1,0 +1,15 @@
+{
+  "type": "number",
+  "getable": true,
+  "setable": false,
+  "uiComponent": "sensor",
+  "units": {
+    "en": "°C",
+    "nl": "°C"
+  },
+  "decimals": 1,
+  "title": {
+    "en": "Target supply temperature",
+    "nl": "Doelaanvoertemperatuur"
+  }
+}

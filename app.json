@@ -37,7 +37,7 @@
       "class": "thermostat",
       "capabilities": [
         "measure_temperature",
-        "target_temperature",
+        "measure_target_temperature",
         "alarm_generic"
       ],
       "images": {
@@ -62,5 +62,22 @@
       ],
       "id": "dewarmte"
     }
-  ]
+  ],
+  "capabilities": {
+    "measure_target_temperature": {
+      "type": "number",
+      "getable": true,
+      "setable": false,
+      "uiComponent": "sensor",
+      "units": {
+        "en": "°C",
+        "nl": "°C"
+      },
+      "decimals": 1,
+      "title": {
+        "en": "Target supply temperature",
+        "nl": "Doelaanvoertemperatuur"
+      }
+    }
+  }
 }

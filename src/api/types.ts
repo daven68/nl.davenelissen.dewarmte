@@ -33,3 +33,7 @@ export interface ProductListResponse {
   previous: string | null;
   results: Product[];
 }
+
+export interface OperationSettingsResponse {
+  [key: string]: unknown;
+}

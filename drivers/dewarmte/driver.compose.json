@@ -6,7 +6,7 @@
   "class": "thermostat",
   "capabilities": [
     "measure_temperature",
-    "target_temperature",
+    "measure_target_temperature",
     "alarm_generic"
   ],
   "images": {

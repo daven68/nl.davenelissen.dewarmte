@@ -19,7 +19,9 @@ class DeWarmteDevice extends Homey.Device {
     const refreshToken = this.getStoreValue('refreshToken');
 
     if (typeof refreshToken !== 'string' || !refreshToken) {
-      await this.setUnavailable('DeWarmte-sessie ontbreekt. Koppel het apparaat opnieuw.');
+      await this.setUnavailable(
+        'DeWarmte-sessie ontbreekt. Koppel het apparaat opnieuw.'
+      );
       return;
     }
 
@@ -29,6 +31,7 @@ class DeWarmteDevice extends Homey.Device {
     this.products = new ProductService(this.client);
 
     try {
+      await this.migrateCapabilities();
       await this.refreshSession();
       await this.poll();
       this.startPolling();
@@ -58,6 +61,12 @@ class DeWarmteDevice extends Homey.Device {
     }, 30 * 1000);
 
     this.log('Polling timer started');
+  }
+
+  private async migrateCapabilities(): Promise<void> {
+    if (!this.hasCapability('measure_target_temperature')) {
+      await this.addCapability('measure_target_temperature');
+    }
   }
 
   private async poll(): Promise<void> {
@@ -105,7 +114,9 @@ class DeWarmteDevice extends Homey.Device {
     }
 
     const products = await this.products.getProducts();
-    const product = products.find((item: { id: string }) => item.id === productId);
+    const product = products.find(
+      (item: { id: string }) => item.id === productId
+    );
 
     if (!product) {
       throw new Error(`DeWarmte product ${productId} was not found`);
@@ -113,21 +124,47 @@ class DeWarmteDevice extends Homey.Device {
 
     this.log(`Product received: ${product.id}`);
 
+    const errors = Array.isArray(product.status.errors)
+      ? product.status.errors
+      : [];
+
+    const hasAlarm =
+      ![0, -1].includes(product.status.fault_code) ||
+      errors.length > 0;
+
     this.log(
       `Status updated: actual=${product.status.actual_temperature}, ` +
       `target=${product.status.target_temperature}, ` +
-      `fault=${product.status.fault_code}`
+      `fault=${product.status.fault_code}, ` +
+      `errors=${JSON.stringify(errors)}, ` +
+      `hasAlarm=${hasAlarm}`
     );
 
-    await Promise.all([
-      this.setCapabilityValue('measure_temperature', product.status.actual_temperature),
-      this.setCapabilityValue('target_temperature', product.status.target_temperature),
-      this.setCapabilityValue('alarm_generic', product.status.fault_code !== 0),
-    ]);
+    const capabilityUpdates = [
+      this.setCapabilityValue(
+        'measure_temperature',
+        product.status.actual_temperature
+      ),
+      this.setCapabilityValue(
+        'measure_target_temperature',
+        product.status.target_temperature
+      ),
+      this.setCapabilityValue('alarm_generic', hasAlarm),
+    ];
+
+    if (this.hasCapability('target_temperature')) {
+      capabilityUpdates.push(
+        this.setCapabilityValue(
+          'target_temperature',
+          product.status.target_temperature
+        )
+      );
+    }
+
+    await Promise.all(capabilityUpdates);
 
     this.log('Capabilities updated');
   }
-
 }
 
 module.exports = DeWarmteDevice;
