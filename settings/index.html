@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <script
+    type="text/javascript"
+    src="/homey.js"
+    data-origin="settings"
+  ></script>
+  <style>
+    [hidden] {
+      display: none !important;
+    }
+
+    .heat-curve-device + .heat-curve-device {
+      margin-top: 24px;
+    }
+
+    .heat-curve-values {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) auto;
+      gap: 8px 16px;
+      margin: 0;
+    }
+
+    .heat-curve-values dt,
+    .heat-curve-values dd {
+      margin: 0;
+    }
+
+    .heat-curve-values dd {
+      font-variant-numeric: tabular-nums;
+      text-align: right;
+    }
+
+    #error {
+      color: var(--homey-color-red, #d32f2f);
+    }
+  </style>
+</head>
+<body>
+  <header class="homey-header">
+    <h1 class="homey-title">Heat Curve</h1>
+    <p class="homey-subtitle">Current read-only heat curve settings.</p>
+  </header>
+
+  <p id="loading" role="status" aria-live="polite">
+    Loading Heat Curve data…
+  </p>
+  <p id="error" role="alert" aria-live="assertive" hidden></p>
+  <main id="content" hidden></main>
+
+  <script type="text/javascript">
+    function addValue(list, label, value) {
+      const term = document.createElement('dt');
+      const description = document.createElement('dd');
+
+      term.textContent = label;
+      description.textContent = value;
+      list.append(term, description);
+    }
+
+    function renderHeatCurve(device) {
+      const section = document.createElement('section');
+      const title = document.createElement('h2');
+      const curve = device.heatCurve;
+
+      section.className = 'heat-curve-device';
+      title.className = 'homey-form-legend';
+      title.textContent = device.name;
+      section.appendChild(title);
+
+      const values = document.createElement('dl');
+      values.className = 'heat-curve-values';
+
+      addValue(values, 'Mode', curve.mode);
+      addValue(values, 'Heating kind', curve.heatingKind);
+      addValue(
+        values,
+        'Setpoint 1 outside temperature',
+        `${curve.setpoint1.outsideTemperature}°C`
+      );
+      addValue(
+        values,
+        'Setpoint 1 target temperature',
+        `${curve.setpoint1.targetTemperature}°C`
+      );
+      addValue(
+        values,
+        'Setpoint 2 outside temperature',
+        `${curve.setpoint2.outsideTemperature}°C`
+      );
+      addValue(
+        values,
+        'Setpoint 2 target temperature',
+        `${curve.setpoint2.targetTemperature}°C`
+      );
+      addValue(
+        values,
+        'Smart correction',
+        curve.smartCorrection ? 'Enabled' : 'Disabled'
+      );
+
+      section.appendChild(values);
+      return section;
+    }
+
+    function onHomeyReady(Homey) {
+      const loading = document.getElementById('loading');
+      const error = document.getElementById('error');
+      const content = document.getElementById('content');
+
+      Homey.ready();
+
+      Homey.api('GET', '/heat-curves', {}, (apiError, devices) => {
+        loading.hidden = true;
+
+        if (apiError || !Array.isArray(devices)) {
+          error.textContent =
+            'The Heat Curve could not be loaded. Please try again later.';
+          error.hidden = false;
+          return;
+        }
+
+        devices.forEach(device => {
+          content.appendChild(renderHeatCurve(device));
+        });
+        content.hidden = false;
+      });
+    }
+  </script>
+</body>
+</html>

@@ -1,5 +1,7 @@
 'use strict';
 
+import type { HeatCurve } from '../../src/domain/HeatCurve';
+
 const Homey = require('homey');
 const axios: typeof import('axios') = require('axios');
 
@@ -97,6 +99,29 @@ class DeWarmteDevice extends Homey.Device {
 
     if (refreshToken && refreshToken !== previousRefreshToken) {
       await this.setStoreValue('refreshToken', refreshToken);
+    }
+  }
+
+  async getHeatCurveForView(): Promise<HeatCurve> {
+    if (!this.products) {
+      throw new Error('DeWarmte product service has not been initialized');
+    }
+
+    const productId = this.getSetting('productId');
+
+    if (typeof productId !== 'string' || !productId) {
+      throw new Error('DeWarmte productId setting is missing');
+    }
+
+    try {
+      return await this.products.getHeatCurve(productId);
+    } catch (err) {
+      if (!axios.isAxiosError(err) || err.response?.status !== 401) {
+        throw err;
+      }
+
+      await this.refreshSession();
+      return this.products.getHeatCurve(productId);
     }
   }
 

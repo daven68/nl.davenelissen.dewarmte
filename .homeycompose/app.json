@@ -26,5 +26,11 @@
   "author": {
     "name": "Dave Nelissen",
     "email": "evennogfake@me.com"
+  },
+  "api": {
+    "getHeatCurves": {
+      "method": "GET",
+      "path": "/heat-curves"
+    }
   }
 }
