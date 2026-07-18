@@ -1,5 +1,10 @@
 {
+  "1.0.1": {
+    "en": "Added read-only heat pump status, temperatures, fault indication and Flow cards.",
+    "nl": "Read-only warmtepompstatus, temperaturen, storingsindicatie en Flow-kaarten toegevoegd."
+  },
   "1.0.0": {
-    "en": "First version!"
+    "en": "First version.",
+    "nl": "Eerste versie."
   }
 }
