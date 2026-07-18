@@ -2,7 +2,7 @@ import { HeatCurveSettings } from '../api/types';
 import { HeatCurve } from './HeatCurve';
 
 export function heatCurveSettingsToHeatCurve(
-  settings: HeatCurveSettings
+  settings: HeatCurveSettings,
 ): HeatCurve {
   return {
     mode: settings.heat_curve_mode,
@@ -21,7 +21,7 @@ export function heatCurveSettingsToHeatCurve(
 }
 
 export function heatCurveToHeatCurveSettings(
-  heatCurve: HeatCurve
+  heatCurve: HeatCurve,
 ): HeatCurveSettings {
   return {
     heat_curve_mode: heatCurve.mode,

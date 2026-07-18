@@ -1,3 +1,48 @@
 {
-  "extends": "athom/homey-app"
+  "extends": "athom/homey-app",
+  "ignorePatterns": [
+    "test-api.ts"
+  ],
+  "settings": {
+    "import/resolver": {
+      "node": {
+        "extensions": [
+          ".js",
+          ".json",
+          ".ts"
+        ]
+      }
+    }
+  },
+  "overrides": [
+    {
+      "files": [
+        "*.ts"
+      ],
+      "rules": {
+        "import/extensions": [
+          "error",
+          "ignorePackages",
+          {
+            "js": "never",
+            "ts": "never"
+          }
+        ],
+        "import/prefer-default-export": "off",
+        "no-empty-function": "off",
+        "no-useless-constructor": "off",
+        "node/no-missing-import": "off",
+        "node/no-missing-require": "off",
+        "node/no-unsupported-features/es-syntax": "off"
+      }
+    },
+    {
+      "files": [
+        "src/api/types.ts"
+      ],
+      "rules": {
+        "camelcase": "off"
+      }
+    }
+  ]
 }

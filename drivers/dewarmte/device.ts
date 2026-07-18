@@ -22,7 +22,7 @@ class DeWarmteDevice extends Homey.Device {
 
     if (typeof refreshToken !== 'string' || !refreshToken) {
       await this.setUnavailable(
-        'DeWarmte-sessie ontbreekt. Koppel het apparaat opnieuw.'
+        'DeWarmte-sessie ontbreekt. Koppel het apparaat opnieuw.',
       );
       return;
     }
@@ -45,7 +45,7 @@ class DeWarmteDevice extends Homey.Device {
 
   async onDeleted() {
     if (this.pollTimer) {
-      clearInterval(this.pollTimer);
+      this.homey.clearInterval(this.pollTimer);
       this.pollTimer = undefined;
     }
   }
@@ -55,8 +55,8 @@ class DeWarmteDevice extends Homey.Device {
       return;
     }
 
-    this.pollTimer = setInterval(() => {
-      this.poll().catch(async err => {
+    this.pollTimer = this.homey.setInterval(() => {
+      this.poll().catch(async (err) => {
         this.error('Failed to poll DeWarmte product status', err);
         await this.setUnavailable('Kan geen verbinding maken met DeWarmte.');
       });
@@ -156,7 +156,7 @@ class DeWarmteDevice extends Homey.Device {
 
     const products = await this.products.getProducts();
     const product = products.find(
-      (item: { id: string }) => item.id === productId
+      (item: { id: string }) => item.id === productId,
     );
 
     if (!product) {
@@ -169,31 +169,30 @@ class DeWarmteDevice extends Homey.Device {
       ? product.status.errors
       : [];
 
-    const hasAlarm =
-      ![0, -1].includes(product.status.fault_code) ||
-      errors.length > 0;
+    const hasAlarm = ![0, -1].includes(product.status.fault_code)
+      || errors.length > 0;
 
     this.log(
-      `Status updated: actual=${product.status.actual_temperature}, ` +
-      `target=${product.status.target_temperature}, ` +
-      `fault=${product.status.fault_code}, ` +
-      `errors=${JSON.stringify(errors)}, ` +
-      `hasAlarm=${hasAlarm}`
+      `Status updated: actual=${product.status.actual_temperature}, `
+      + `target=${product.status.target_temperature}, `
+      + `fault=${product.status.fault_code}, `
+      + `errors=${JSON.stringify(errors)}, `
+      + `hasAlarm=${hasAlarm}`,
     );
 
     const capabilityUpdates = [
       this.setCapabilityValue('pump_active', product.status.is_on),
       this.setCapabilityValue(
         'measure_temperature',
-        product.status.actual_temperature
+        product.status.actual_temperature,
       ),
       this.setCapabilityValue(
         'measure_target_temperature',
-        product.status.target_temperature
+        product.status.target_temperature,
       ),
       this.setCapabilityValue(
         'pump_state',
-        product.status.is_on ? 'on' : 'off'
+        product.status.is_on ? 'on' : 'off',
       ),
       this.setCapabilityValue('alarm_generic', hasAlarm),
     ];

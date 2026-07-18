@@ -35,11 +35,11 @@ module.exports = {
 
     try {
       return await Promise.all(
-        devices.map(async device => ({
+        devices.map(async (device) => ({
           deviceId: String(device.getData().id),
           name: device.getName(),
           heatCurve: await device.getHeatCurveForView(),
-        }))
+        })),
       );
     } catch {
       homey.app.error('Failed to load Heat Curve data');
@@ -55,7 +55,7 @@ module.exports = {
     const driver = homey.drivers.getDriver('dewarmte');
     const devices = driver.getDevices() as HeatCurveDevice[];
     const device = devices.find(
-      item => String(item.getData().id) === params?.deviceId
+      (item) => String(item.getData().id) === params?.deviceId,
     );
 
     if (!device || !body) {
@@ -75,7 +75,7 @@ module.exports = {
       throw new Error(
         error instanceof Error
           ? error.message
-          : 'Heat Curve data could not be saved'
+          : 'Heat Curve data could not be saved',
       );
     }
   },

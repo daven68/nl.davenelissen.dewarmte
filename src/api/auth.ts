@@ -19,7 +19,7 @@ export class AuthService {
       {
         email,
         password,
-      }
+      },
     );
 
     this.client.setTokens(result.access, result.refresh);
@@ -34,7 +34,7 @@ export class AuthService {
 
     const result = await this.client.post<RefreshResponse>(
       '/auth/token/refresh/',
-      { refresh }
+      { refresh },
     );
 
     this.client.setAccessToken(result.access);

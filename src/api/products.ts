@@ -18,8 +18,7 @@ export class ProductService {
    * Retourneert alle warmtepompen van de gebruiker.
    */
   async getProducts(): Promise<Product[]> {
-    const response =
-      await this.client.get<ProductListResponse>('/customer/products/');
+    const response = await this.client.get<ProductListResponse>('/customer/products/');
 
     if (response.results.length === 0) {
       throw new Error('No DeWarmte products found');
@@ -41,10 +40,10 @@ export class ProductService {
    * Retourneert de operationele instellingen van een warmtepomp.
    */
   async getOperationSettings(
-    productId: string
+    productId: string,
   ): Promise<OperationSettingsResponse> {
     return this.client.get<OperationSettingsResponse>(
-      `/customer/products/${productId}/settings/`
+      `/customer/products/${productId}/settings/`,
     );
   }
 
@@ -69,13 +68,13 @@ export class ProductService {
    */
   async updateHeatCurve(
     productId: string,
-    settings: HeatCurveSettings
+    settings: HeatCurveSettings,
   ): Promise<unknown> {
     const body = this.extractHeatCurveSettings(settings);
 
     return this.client.post<unknown>(
       `/customer/products/${productId}/settings/heat-curve/`,
-      body
+      body,
     );
   }
 
@@ -84,7 +83,7 @@ export class ProductService {
    */
   async saveHeatCurve(
     productId: string,
-    heatCurve: HeatCurve
+    heatCurve: HeatCurve,
   ): Promise<HeatCurve> {
     const settings = heatCurveToHeatCurveSettings(heatCurve);
     await this.updateHeatCurve(productId, settings);
@@ -92,7 +91,7 @@ export class ProductService {
   }
 
   private extractHeatCurveSettings(
-    settings: HeatCurveSettings
+    settings: HeatCurveSettings,
   ): HeatCurveSettings {
     return {
       heat_curve_mode: settings.heat_curve_mode,

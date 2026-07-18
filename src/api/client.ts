@@ -49,12 +49,12 @@ export class DeWarmteClient {
   public async post<T>(
     url: string,
     body: unknown,
-    config?: AxiosRequestConfig
+    config?: AxiosRequestConfig,
   ): Promise<T> {
     const response: AxiosResponse<T> = await this.client.post(
       url,
       body,
-      config
+      config,
     );
 
     return response.data;

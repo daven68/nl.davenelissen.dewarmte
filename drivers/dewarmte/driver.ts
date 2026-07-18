@@ -1,6 +1,10 @@
 'use strict';
 
+import type { Product } from '../../src/api/types';
+
 const Homey = require('homey');
+
+type PairSession = import('homey/lib/PairSession');
 
 const { DeWarmteClient } = require('../../src/api/client');
 const { AuthService } = require('../../src/api/auth');
@@ -34,7 +38,7 @@ export = class DeWarmteDriver extends Homey.Driver {
         temperature,
       }: TargetSupplyTemperatureConditionArgs) => {
         const targetTemperature = device.getCapabilityValue(
-          'measure_target_temperature'
+          'measure_target_temperature',
         );
 
         return typeof targetTemperature === 'number'
@@ -42,7 +46,7 @@ export = class DeWarmteDriver extends Homey.Driver {
       });
   }
 
-  async onPair(session: any) {
+  async onPair(session: PairSession) {
 
     this.log('=== Pair session started ===');
 
@@ -88,7 +92,7 @@ export = class DeWarmteDriver extends Homey.Driver {
 
         this.log(`Found ${productList.length} products`);
 
-        return productList.map((product: any) => ({
+        return productList.map((product: Product) => ({
 
           name: product.nickname || product.name,
 
