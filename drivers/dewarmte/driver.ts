@@ -15,6 +15,12 @@ export = class DeWarmteDriver extends Homey.Driver {
 
   async onInit() {
     this.log('DeWarmte Driver initialized');
+
+    this.homey.flow
+      .getConditionCard('pump_is_on')
+      .registerRunListener(({ device }: { device: InstanceType<typeof Homey.Device> }) => {
+        return device.getCapabilityValue('pump_state') === 'on';
+      });
   }
 
   async onPair(session: any) {

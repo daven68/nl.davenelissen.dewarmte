@@ -28,18 +28,66 @@
     "name": "Dave Nelissen",
     "email": "evennogfake@me.com"
   },
+  "flow": {
+    "triggers": [
+      {
+        "id": "pump_state_changed",
+        "title": {
+          "en": "The heat pump status changed",
+          "nl": "De warmtepompstatus is gewijzigd"
+        },
+        "args": [
+          {
+            "type": "device",
+            "name": "device",
+            "filter": "driver_id=dewarmte"
+          }
+        ]
+      }
+    ],
+    "conditions": [
+      {
+        "id": "pump_is_on",
+        "title": {
+          "en": "The heat pump !{{is|isn't}} on",
+          "nl": "De warmtepomp !{{is|is niet}} aan"
+        },
+        "args": [
+          {
+            "type": "device",
+            "name": "device",
+            "filter": "driver_id=dewarmte"
+          }
+        ]
+      }
+    ]
+  },
   "drivers": [
     {
       "name": {
         "en": "DeWarmte Heat Pump",
         "nl": "DeWarmte Warmtepomp"
       },
-      "class": "thermostat",
+      "class": "heatpump",
       "capabilities": [
+        "pump_active",
         "measure_temperature",
         "measure_target_temperature",
+        "pump_state",
         "alarm_generic"
       ],
+      "capabilitiesOptions": {
+        "pump_active": {
+          "titleTrue": {
+            "en": "On",
+            "nl": "Aan"
+          },
+          "titleFalse": {
+            "en": "Off",
+            "nl": "Uit"
+          }
+        }
+      },
       "images": {
         "small": "/assets/images/75x75.png",
         "large": "/assets/images/500x500.png"
@@ -78,6 +126,43 @@
         "en": "Target supply temperature",
         "nl": "Doelaanvoertemperatuur"
       }
+    },
+    "pump_active": {
+      "type": "boolean",
+      "title": {
+        "en": "Heat pump active",
+        "nl": "Warmtepomp actief"
+      },
+      "getable": true,
+      "setable": false,
+      "uiComponent": null,
+      "uiQuickAction": false
+    },
+    "pump_state": {
+      "type": "enum",
+      "title": {
+        "en": "Heat pump status",
+        "nl": "Warmtepompstatus"
+      },
+      "getable": true,
+      "setable": false,
+      "uiComponent": "sensor",
+      "values": [
+        {
+          "id": "on",
+          "title": {
+            "en": "On",
+            "nl": "Aan"
+          }
+        },
+        {
+          "id": "off",
+          "title": {
+            "en": "Off",
+            "nl": "Uit"
+          }
+        }
+      ]
     }
   }
 }

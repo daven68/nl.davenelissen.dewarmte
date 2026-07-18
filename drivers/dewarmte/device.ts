@@ -66,8 +66,24 @@ class DeWarmteDevice extends Homey.Device {
   }
 
   private async migrateCapabilities(): Promise<void> {
+    if (this.getClass() !== 'heatpump') {
+      await this.setClass('heatpump');
+    }
+
     if (!this.hasCapability('measure_target_temperature')) {
       await this.addCapability('measure_target_temperature');
+    }
+
+    if (!this.hasCapability('pump_active')) {
+      await this.addCapability('pump_active');
+    }
+
+    if (!this.hasCapability('pump_state')) {
+      await this.addCapability('pump_state');
+    }
+
+    if (this.hasCapability('target_temperature')) {
+      await this.removeCapability('target_temperature');
     }
   }
 
@@ -166,6 +182,7 @@ class DeWarmteDevice extends Homey.Device {
     );
 
     const capabilityUpdates = [
+      this.setCapabilityValue('pump_active', product.status.is_on),
       this.setCapabilityValue(
         'measure_temperature',
         product.status.actual_temperature
@@ -174,17 +191,12 @@ class DeWarmteDevice extends Homey.Device {
         'measure_target_temperature',
         product.status.target_temperature
       ),
+      this.setCapabilityValue(
+        'pump_state',
+        product.status.is_on ? 'on' : 'off'
+      ),
       this.setCapabilityValue('alarm_generic', hasAlarm),
     ];
-
-    if (this.hasCapability('target_temperature')) {
-      capabilityUpdates.push(
-        this.setCapabilityValue(
-          'target_temperature',
-          product.status.target_temperature
-        )
-      );
-    }
 
     await Promise.all(capabilityUpdates);
 

@@ -1,0 +1,20 @@
+{
+  "triggers": [
+    {
+      "id": "pump_state_changed",
+      "title": {
+        "en": "The heat pump status changed",
+        "nl": "De warmtepompstatus is gewijzigd"
+      }
+    }
+  ],
+  "conditions": [
+    {
+      "id": "pump_is_on",
+      "title": {
+        "en": "The heat pump !{{is|isn't}} on",
+        "nl": "De warmtepomp !{{is|is niet}} aan"
+      }
+    }
+  ]
+}

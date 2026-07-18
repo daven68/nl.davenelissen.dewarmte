@@ -1,0 +1,11 @@
+{
+  "type": "boolean",
+  "title": {
+    "en": "Heat pump active",
+    "nl": "Warmtepomp actief"
+  },
+  "getable": true,
+  "setable": false,
+  "uiComponent": null,
+  "uiQuickAction": false
+}

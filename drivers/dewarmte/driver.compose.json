@@ -3,12 +3,26 @@
     "en": "DeWarmte Heat Pump",
     "nl": "DeWarmte Warmtepomp"
   },
-  "class": "thermostat",
+  "class": "heatpump",
   "capabilities": [
+    "pump_active",
     "measure_temperature",
     "measure_target_temperature",
+    "pump_state",
     "alarm_generic"
   ],
+  "capabilitiesOptions": {
+    "pump_active": {
+      "titleTrue": {
+        "en": "On",
+        "nl": "Aan"
+      },
+      "titleFalse": {
+        "en": "Off",
+        "nl": "Uit"
+      }
+    }
+  },
   "images": {
     "small": "/assets/images/75x75.png",
     "large": "/assets/images/500x500.png"
