@@ -262,6 +262,36 @@
       transform: translateX(22px);
     }
 
+    .heat-curve-actions {
+      display: flex;
+      justify-content: flex-end;
+      gap: 10px;
+      margin-top: 14px;
+    }
+
+    .save-success {
+      margin: 14px 0 0;
+      padding: 12px 14px;
+      color: #d9fbe5;
+      font-size: 0.9rem;
+      font-weight: 600;
+      background: rgba(41, 163, 85, 0.18);
+      border: 1px solid rgba(88, 214, 132, 0.38);
+      border-radius: 12px;
+    }
+
+    .save-error {
+      margin: 14px 0 0;
+      padding: 12px 14px;
+      color: #ffd9d9;
+      font-size: 0.9rem;
+      font-weight: 600;
+      overflow-wrap: anywhere;
+      background: rgba(190, 45, 45, 0.18);
+      border: 1px solid rgba(255, 105, 105, 0.38);
+      border-radius: 12px;
+    }
+
     @media (max-width: 560px) {
       body {
         padding-inline: 12px;
@@ -341,6 +371,44 @@
 
     function clamp(value, minimum, maximum) {
       return Math.min(Math.max(value, minimum), maximum);
+    }
+
+    function cloneHeatCurve(curve) {
+      return JSON.parse(JSON.stringify(curve));
+    }
+
+    function deepFreeze(value) {
+      Object.values(value).forEach(child => {
+        if (child && typeof child === 'object') {
+          deepFreeze(child);
+        }
+      });
+
+      return Object.freeze(value);
+    }
+
+    function heatCurveHasChanges(current, original) {
+      return ['setpoint1', 'setpoint2'].some(setpointName =>
+        ['outsideTemperature', 'targetTemperature'].some(property =>
+          Math.abs(
+            current[setpointName][property] -
+              original[setpointName][property]
+          ) > 1e-9
+        )
+      );
+    }
+
+    function createRoundedHeatCurve(curve) {
+      const roundedCurve = cloneHeatCurve(curve);
+
+      ['setpoint1', 'setpoint2'].forEach(setpointName => {
+        ['outsideTemperature', 'targetTemperature'].forEach(property => {
+          roundedCurve[setpointName][property] =
+            Math.round(roundedCurve[setpointName][property]);
+        });
+      });
+
+      return roundedCurve;
     }
 
     function getSvgPointerPosition(svg, event) {
@@ -531,6 +599,14 @@
         });
       }
 
+      function setPointValues(pointIndex, setpoint) {
+        const point = plottedPoints[pointIndex];
+        point.outsideTemperature = setpoint.outsideTemperature;
+        point.targetTemperature = setpoint.targetTemperature;
+        point.x = scaleX(point.outsideTemperature);
+        point.y = scaleY(point.targetTemperature);
+      }
+
       plottedPoints.forEach((point, pointIndex) => {
         point.circle.addEventListener('pointerdown', event => {
           event.preventDefault();
@@ -585,7 +661,14 @@
         `rotate(-90 15 ${CHART_PADDING.top + plotHeight / 2})`
       );
 
-      return svg;
+      return {
+        element: svg,
+        reset(resetCurve) {
+          setPointValues(0, resetCurve.setpoint1);
+          setPointValues(1, resetCurve.setpoint2);
+          updateChart();
+        },
+      };
     }
 
     function createTemperatureRow(label, value) {
@@ -663,13 +746,79 @@
       return card;
     }
 
-    function renderHeatCurve(device) {
+    function createHeatCurveActions(onSave, onCancel) {
+      const actions = document.createElement('div');
+      const cancelButton = document.createElement('button');
+      const saveButton = document.createElement('button');
+
+      actions.className = 'heat-curve-actions';
+      actions.hidden = true;
+      cancelButton.type = 'button';
+      cancelButton.className = 'homey-button-secondary';
+      cancelButton.textContent = 'Cancel';
+      cancelButton.addEventListener('click', onCancel);
+      saveButton.type = 'button';
+      saveButton.className = 'homey-button-primary';
+      saveButton.textContent = 'Save';
+      saveButton.addEventListener('click', onSave);
+      actions.append(cancelButton, saveButton);
+
+      return actions;
+    }
+
+    function createSaveSuccessMessage() {
+      const message = document.createElement('p');
+      message.className = 'save-success';
+      message.textContent = 'Heat Curve succesvol opgeslagen.';
+      message.setAttribute('role', 'status');
+      message.hidden = true;
+      return message;
+    }
+
+    function createSaveErrorMessage() {
+      const message = document.createElement('p');
+      message.className = 'save-error';
+      message.setAttribute('role', 'alert');
+      message.hidden = true;
+      return message;
+    }
+
+    function renderHeatCurve(device, Homey) {
       const section = document.createElement('section');
       const deviceName = document.createElement('h2');
       const chartCard = document.createElement('section');
       const chartMeta = document.createElement('p');
       const setpointGrid = document.createElement('section');
-      const curve = device.heatCurve;
+      const successMessage = createSaveSuccessMessage();
+      const errorMessage = createSaveErrorMessage();
+      let originalCurve = deepFreeze(cloneHeatCurve(device.heatCurve));
+      let currentCurve = cloneHeatCurve(device.heatCurve);
+      let isSaving = false;
+      let successMessageTimeout;
+      let errorMessageTimeout;
+
+      function hideSuccessMessage() {
+        clearTimeout(successMessageTimeout);
+        successMessage.hidden = true;
+      }
+
+      function showSuccessMessage() {
+        hideSuccessMessage();
+        successMessage.hidden = false;
+        successMessageTimeout = setTimeout(hideSuccessMessage, 3000);
+      }
+
+      function hideErrorMessage() {
+        clearTimeout(errorMessageTimeout);
+        errorMessage.hidden = true;
+      }
+
+      function showErrorMessage(message) {
+        hideErrorMessage();
+        errorMessage.textContent = `Heat Curve opslaan mislukt: ${message}`;
+        errorMessage.hidden = false;
+        errorMessageTimeout = setTimeout(hideErrorMessage, 5000);
+      }
 
       section.className = 'heat-curve-device';
       deviceName.className = 'device-name';
@@ -678,24 +827,93 @@
 
       chartCard.className = 'chart-card';
       chartMeta.className = 'chart-meta';
-      chartMeta.textContent = `Mode: ${curve.mode}  •  Heating kind: ${curve.heatingKind}`;
+      chartMeta.textContent = `Mode: ${currentCurve.mode}  •  Heating kind: ${currentCurve.heatingKind}`;
       const setpointCards = [
-        createSetpointCard('Setpoint 1', curve.setpoint1),
-        createSetpointCard('Setpoint 2', curve.setpoint2),
+        createSetpointCard('Setpoint 1', currentCurve.setpoint1),
+        createSetpointCard('Setpoint 2', currentCurve.setpoint2),
       ];
-      const chart = createHeatCurveChart(curve, (index, point) => {
+      const actions = createHeatCurveActions(
+        () => {
+          if (isSaving) {
+            return;
+          }
+
+          const roundedCurve = createRoundedHeatCurve(currentCurve);
+          isSaving = true;
+          Array.from(actions.children).forEach(button => {
+            button.disabled = true;
+          });
+          if (typeof Homey.loading === 'function') {
+            Homey.loading(true);
+          }
+          const finishSave = apiError => {
+            if (typeof Homey.loading === 'function') {
+              Homey.loading(false);
+            }
+            isSaving = false;
+            Array.from(actions.children).forEach(button => {
+              button.disabled = false;
+            });
+
+            if (apiError) {
+              hideSuccessMessage();
+              const message = apiError.message || String(apiError);
+              showErrorMessage(message);
+              return;
+            }
+
+            hideErrorMessage();
+            currentCurve = cloneHeatCurve(roundedCurve);
+            originalCurve = deepFreeze(cloneHeatCurve(roundedCurve));
+            chart.reset(currentCurve);
+            setpointCards[0].update(currentCurve.setpoint1);
+            setpointCards[1].update(currentCurve.setpoint2);
+            actions.hidden = true;
+            showSuccessMessage();
+          };
+
+          try {
+            Homey.api(
+              'PUT',
+              `/heat-curves/${encodeURIComponent(device.deviceId)}`,
+              roundedCurve,
+              finishSave
+            );
+          } catch (error) {
+            finishSave(error);
+          }
+        },
+        () => {
+          hideSuccessMessage();
+          hideErrorMessage();
+          currentCurve = cloneHeatCurve(originalCurve);
+          chart.reset(currentCurve);
+          setpointCards[0].update(currentCurve.setpoint1);
+          setpointCards[1].update(currentCurve.setpoint2);
+          actions.hidden = true;
+        }
+      );
+      const chart = createHeatCurveChart(currentCurve, (index, point) => {
+        const setpointName = index === 0 ? 'setpoint1' : 'setpoint2';
+        currentCurve[setpointName].outsideTemperature =
+          point.outsideTemperature;
+        currentCurve[setpointName].targetTemperature =
+          point.targetTemperature;
+        hideSuccessMessage();
+        hideErrorMessage();
         setpointCards[index].update(point);
+        actions.hidden = !heatCurveHasChanges(currentCurve, originalCurve);
       });
-      chartCard.append(chartMeta, chart);
+      chartCard.append(chartMeta, chart.element);
       section.appendChild(chartCard);
 
       requestAnimationFrame(() => {
-        const bounds = chart.getBoundingClientRect();
+        const bounds = chart.element.getBoundingClientRect();
         console.log('Heat Curve SVG DOM state:', {
-          isConnected: chart.isConnected,
+          isConnected: chart.element.isConnected,
           width: bounds.width,
           height: bounds.height,
-          hidden: chart.hidden,
+          hidden: chart.element.hidden,
         });
       });
 
@@ -705,7 +923,12 @@
         setpointCards[1].card
       );
       section.appendChild(setpointGrid);
-      section.appendChild(createSmartCorrectionCard(curve.smartCorrection));
+      section.appendChild(
+        createSmartCorrectionCard(currentCurve.smartCorrection)
+      );
+      section.appendChild(errorMessage);
+      section.appendChild(successMessage);
+      section.appendChild(actions);
 
       return section;
     }
@@ -728,7 +951,7 @@
         }
 
         devices.forEach(device => {
-          content.appendChild(renderHeatCurve(device));
+          content.appendChild(renderHeatCurve(device, Homey));
         });
         content.hidden = false;
       });
