@@ -43,6 +43,20 @@
             "filter": "driver_id=dewarmte"
           }
         ]
+      },
+      {
+        "id": "measure_target_temperature_changed",
+        "title": {
+          "en": "The target supply temperature changed",
+          "nl": "De doelaanvoertemperatuur is gewijzigd"
+        },
+        "args": [
+          {
+            "type": "device",
+            "name": "device",
+            "filter": "driver_id=dewarmte"
+          }
+        ]
       }
     ],
     "conditions": [
@@ -57,6 +71,35 @@
             "type": "device",
             "name": "device",
             "filter": "driver_id=dewarmte"
+          }
+        ]
+      },
+      {
+        "id": "target_supply_temperature_above",
+        "title": {
+          "en": "The target supply temperature is above a value",
+          "nl": "De doelaanvoertemperatuur is hoger dan een waarde"
+        },
+        "titleFormatted": {
+          "en": "The target supply temperature is !{{above|below}} [[temperature]] °C",
+          "nl": "De doelaanvoertemperatuur is !{{hoger|lager}} dan [[temperature]] °C"
+        },
+        "args": [
+          {
+            "type": "device",
+            "name": "device",
+            "filter": "driver_id=dewarmte"
+          },
+          {
+            "name": "temperature",
+            "type": "number",
+            "title": {
+              "en": "Temperature (°C)",
+              "nl": "Temperatuur (°C)"
+            },
+            "min": 0,
+            "max": 100,
+            "step": 0.1
           }
         ]
       }

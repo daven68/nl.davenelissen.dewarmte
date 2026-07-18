@@ -6,6 +6,13 @@
         "en": "The heat pump status changed",
         "nl": "De warmtepompstatus is gewijzigd"
       }
+    },
+    {
+      "id": "measure_target_temperature_changed",
+      "title": {
+        "en": "The target supply temperature changed",
+        "nl": "De doelaanvoertemperatuur is gewijzigd"
+      }
     }
   ],
   "conditions": [
@@ -15,6 +22,30 @@
         "en": "The heat pump !{{is|isn't}} on",
         "nl": "De warmtepomp !{{is|is niet}} aan"
       }
+    },
+    {
+      "id": "target_supply_temperature_above",
+      "title": {
+        "en": "The target supply temperature is above a value",
+        "nl": "De doelaanvoertemperatuur is hoger dan een waarde"
+      },
+      "titleFormatted": {
+        "en": "The target supply temperature is !{{above|below}} [[temperature]] °C",
+        "nl": "De doelaanvoertemperatuur is !{{hoger|lager}} dan [[temperature]] °C"
+      },
+      "args": [
+        {
+          "name": "temperature",
+          "type": "number",
+          "title": {
+            "en": "Temperature (°C)",
+            "nl": "Temperatuur (°C)"
+          },
+          "min": 0,
+          "max": 100,
+          "step": 0.1
+        }
+      ]
     }
   ]
 }

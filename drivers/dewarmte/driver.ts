@@ -11,6 +11,11 @@ interface LoginData {
   password: string;
 }
 
+interface TargetSupplyTemperatureConditionArgs {
+  device: InstanceType<typeof Homey.Device>;
+  temperature: number;
+}
+
 export = class DeWarmteDriver extends Homey.Driver {
 
   async onInit() {
@@ -20,6 +25,20 @@ export = class DeWarmteDriver extends Homey.Driver {
       .getConditionCard('pump_is_on')
       .registerRunListener(({ device }: { device: InstanceType<typeof Homey.Device> }) => {
         return device.getCapabilityValue('pump_state') === 'on';
+      });
+
+    this.homey.flow
+      .getConditionCard('target_supply_temperature_above')
+      .registerRunListener(({
+        device,
+        temperature,
+      }: TargetSupplyTemperatureConditionArgs) => {
+        const targetTemperature = device.getCapabilityValue(
+          'measure_target_temperature'
+        );
+
+        return typeof targetTemperature === 'number'
+          && targetTemperature > temperature;
       });
   }
 
