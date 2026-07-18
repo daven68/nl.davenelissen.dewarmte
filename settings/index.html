@@ -143,7 +143,13 @@
       fill: var(--panel-background);
       stroke: var(--accent);
       stroke-width: 4;
+      cursor: grab;
+      touch-action: none;
       vector-effect: non-scaling-stroke;
+    }
+
+    .chart-point-ring:active {
+      cursor: grabbing;
     }
 
     .chart-point-label {
@@ -333,7 +339,20 @@
       return element;
     }
 
-    function createHeatCurveChart(curve) {
+    function clamp(value, minimum, maximum) {
+      return Math.min(Math.max(value, minimum), maximum);
+    }
+
+    function getSvgPointerPosition(svg, event) {
+      const point = svg.createSVGPoint();
+      point.x = event.clientX;
+      point.y = event.clientY;
+
+      // Convert screen coordinates to the SVG viewBox on responsive layouts.
+      return point.matrixTransform(svg.getScreenCTM().inverse());
+    }
+
+    function createHeatCurveChart(curve, onSetpointChange) {
       const points = [
         {
           name: 'S1',
@@ -378,6 +397,10 @@
         CHART_PADDING.left + ((value - xMin) / (xMax - xMin)) * plotWidth;
       const scaleY = value =>
         CHART_PADDING.top + ((yMax - value) / (yMax - yMin)) * plotHeight;
+      const unscaleX = x =>
+        xMin + ((x - CHART_PADDING.left) / plotWidth) * (xMax - xMin);
+      const unscaleY = y =>
+        yMax - ((y - CHART_PADDING.top) / plotHeight) * (yMax - yMin);
 
       const svg = createSvgElement('svg', {
         class: 'heat-curve-chart',
@@ -432,13 +455,11 @@
         );
       }
 
-      const plottedPoints = points
-        .map(point => ({
-          ...point,
-          x: scaleX(point.outsideTemperature),
-          y: scaleY(point.targetTemperature),
-        }))
-        .sort((first, second) => first.x - second.x);
+      const plottedPoints = points.map(point => ({
+        ...point,
+        x: scaleX(point.outsideTemperature),
+        y: scaleY(point.targetTemperature),
+      }));
       console.log(
         'Heat Curve setpoint coordinates:',
         plottedPoints.map(point => ({
@@ -459,29 +480,24 @@
         `${plottedPoints[plottedPoints.length - 1].x},${CHART_PADDING.top + plotHeight}`,
       ].join(' ');
 
-      svg.appendChild(
-        createSvgElement('polygon', {
-          points: areaCoordinates,
-          class: 'chart-area',
-        })
-      );
-      svg.appendChild(
-        createSvgElement('polyline', {
-          points: pointCoordinates,
-          class: 'chart-line',
-        })
-      );
+      const area = createSvgElement('polygon', {
+        points: areaCoordinates,
+        class: 'chart-area',
+      });
+      const line = createSvgElement('polyline', {
+        points: pointCoordinates,
+        class: 'chart-line',
+      });
+      svg.append(area, line);
 
       plottedPoints.forEach(point => {
-        svg.appendChild(
-          createSvgElement('circle', {
-            cx: point.x,
-            cy: point.y,
-            r: 8,
-            class: 'chart-point-ring',
-          })
-        );
-        addText(
+        point.circle = createSvgElement('circle', {
+          cx: point.x,
+          cy: point.y,
+          r: 8,
+          class: 'chart-point-ring',
+        });
+        point.label = addText(
           svg,
           `${point.name}  ${formatTemperature(point.targetTemperature)}`,
           point.x,
@@ -489,6 +505,63 @@
           'chart-point-label',
           { 'text-anchor': 'middle' }
         );
+        svg.insertBefore(point.circle, point.label);
+      });
+
+      function updateChart() {
+        const coordinates = plottedPoints
+          .map(point => `${point.x},${point.y}`)
+          .join(' ');
+        const updatedAreaCoordinates = [
+          `${plottedPoints[0].x},${CHART_PADDING.top + plotHeight}`,
+          coordinates,
+          `${plottedPoints[1].x},${CHART_PADDING.top + plotHeight}`,
+        ].join(' ');
+
+        line.setAttribute('points', coordinates);
+        area.setAttribute('points', updatedAreaCoordinates);
+
+        plottedPoints.forEach(point => {
+          point.circle.setAttribute('cx', point.x);
+          point.circle.setAttribute('cy', point.y);
+          point.label.setAttribute('x', point.x);
+          point.label.setAttribute('y', point.y - 18);
+          point.label.textContent =
+            `${point.name}  ${formatTemperature(point.targetTemperature)}`;
+        });
+      }
+
+      plottedPoints.forEach((point, pointIndex) => {
+        point.circle.addEventListener('pointerdown', event => {
+          event.preventDefault();
+          point.circle.setPointerCapture(event.pointerId);
+        });
+
+        point.circle.addEventListener('pointermove', event => {
+          if (!point.circle.hasPointerCapture(event.pointerId)) {
+            return;
+          }
+
+          const pointer = getSvgPointerPosition(svg, event);
+          const otherPoint = plottedPoints[pointIndex === 0 ? 1 : 0];
+          const xMinimum = CHART_PADDING.left;
+          const xMaximum = CHART_PADDING.left + plotWidth;
+
+          // A one-pixel gap prevents the setpoints from crossing each other.
+          point.x = pointIndex === 0
+            ? clamp(pointer.x, xMinimum, otherPoint.x - 1)
+            : clamp(pointer.x, otherPoint.x + 1, xMaximum);
+          point.y = clamp(
+            pointer.y,
+            CHART_PADDING.top,
+            CHART_PADDING.top + plotHeight
+          );
+          point.outsideTemperature = unscaleX(point.x);
+          point.targetTemperature = unscaleY(point.y);
+
+          updateChart();
+          onSetpointChange(pointIndex, point);
+        });
       });
 
       addText(
@@ -527,7 +600,7 @@
       valueElement.textContent = formatTemperature(value);
       row.append(labelElement, valueElement);
 
-      return row;
+      return { row, valueElement };
     }
 
     function createSetpointCard(title, setpoint) {
@@ -537,21 +610,30 @@
       card.className = 'setpoint-card';
       heading.className = 'setpoint-title';
       heading.textContent = title;
-      card.appendChild(heading);
-      card.appendChild(
-        createTemperatureRow(
-          'Outside temperature',
-          setpoint.outsideTemperature
-        )
+      const outsideTemperature = createTemperatureRow(
+        'Outside temperature',
+        setpoint.outsideTemperature
       );
-      card.appendChild(
-        createTemperatureRow(
-          'Target temperature',
-          setpoint.targetTemperature
-        )
+      const targetTemperature = createTemperatureRow(
+        'Target temperature',
+        setpoint.targetTemperature
       );
 
-      return card;
+      card.append(
+        heading,
+        outsideTemperature.row,
+        targetTemperature.row
+      );
+
+      return {
+        card,
+        update(point) {
+          outsideTemperature.valueElement.textContent =
+            formatTemperature(point.outsideTemperature);
+          targetTemperature.valueElement.textContent =
+            formatTemperature(point.targetTemperature);
+        },
+      };
     }
 
     function createSmartCorrectionCard(enabled) {
@@ -597,7 +679,13 @@
       chartCard.className = 'chart-card';
       chartMeta.className = 'chart-meta';
       chartMeta.textContent = `Mode: ${curve.mode}  •  Heating kind: ${curve.heatingKind}`;
-      const chart = createHeatCurveChart(curve);
+      const setpointCards = [
+        createSetpointCard('Setpoint 1', curve.setpoint1),
+        createSetpointCard('Setpoint 2', curve.setpoint2),
+      ];
+      const chart = createHeatCurveChart(curve, (index, point) => {
+        setpointCards[index].update(point);
+      });
       chartCard.append(chartMeta, chart);
       section.appendChild(chartCard);
 
@@ -613,8 +701,8 @@
 
       setpointGrid.className = 'setpoint-grid';
       setpointGrid.append(
-        createSetpointCard('Setpoint 1', curve.setpoint1),
-        createSetpointCard('Setpoint 2', curve.setpoint2)
+        setpointCards[0].card,
+        setpointCards[1].card
       );
       section.appendChild(setpointGrid);
       section.appendChild(createSmartCorrectionCard(curve.smartCorrection));
