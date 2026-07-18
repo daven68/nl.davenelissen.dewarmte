@@ -151,8 +151,9 @@
         }
       },
       "images": {
-        "small": "/assets/images/75x75.png",
-        "large": "/assets/images/500x500.png"
+        "small": "/drivers/dewarmte/assets/images/small.png",
+        "large": "/drivers/dewarmte/assets/images/large.png",
+        "xlarge": "/drivers/dewarmte/assets/images/xlarge.png"
       },
       "pair": [
         {

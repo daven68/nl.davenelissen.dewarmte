@@ -14,5 +14,7 @@ Functies
 
 Deze eerste versie is read-only en bedient of wijzigt de instellingen van je warmtepomp niet. De app wordt stap voor stap uitgebreid met meer DeWarmte-inzichten, Flow-mogelijkheden en aanvullende functionaliteit.
 
+Compatibiliteit: deze versie is getest met een DeWarmte pompAO. Andere warmtepompmodellen van DeWarmte zijn nog niet getest.
+
 Ondersteuning en broncode:
 https://github.com/daven68/nl.davenelissen.dewarmte

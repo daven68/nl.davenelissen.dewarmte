@@ -14,5 +14,7 @@ Features
 
 This first version is read-only and does not control or change your heat pump settings. The app will be expanded step by step with more DeWarmte insights, Flow options and additional functionality.
 
+Compatibility: this version has been tested with a DeWarmte pompAO. Other DeWarmte heat pump models have not yet been tested.
+
 Support and source code:
 https://github.com/daven68/nl.davenelissen.dewarmte
