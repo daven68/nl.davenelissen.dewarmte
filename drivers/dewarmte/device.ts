@@ -22,7 +22,7 @@ class DeWarmteDevice extends Homey.Device {
 
     if (typeof refreshToken !== 'string' || !refreshToken) {
       await this.setUnavailable(
-        'DeWarmte-sessie ontbreekt. Koppel het apparaat opnieuw.',
+        this.homey.__('device.session_missing'),
       );
       return;
     }
@@ -39,7 +39,7 @@ class DeWarmteDevice extends Homey.Device {
       this.startPolling();
     } catch (err) {
       this.error('Failed to initialize DeWarmte polling', err);
-      await this.setUnavailable('Kan geen verbinding maken met DeWarmte.');
+      await this.setUnavailable(this.homey.__('device.connection_failed'));
     }
   }
 
@@ -58,7 +58,7 @@ class DeWarmteDevice extends Homey.Device {
     this.pollTimer = this.homey.setInterval(() => {
       this.poll().catch(async (err) => {
         this.error('Failed to poll DeWarmte product status', err);
-        await this.setUnavailable('Kan geen verbinding maken met DeWarmte.');
+        await this.setUnavailable(this.homey.__('device.connection_failed'));
       });
     }, 30 * 1000);
 

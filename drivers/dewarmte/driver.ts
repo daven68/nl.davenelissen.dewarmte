@@ -71,7 +71,7 @@ export = class DeWarmteDriver extends Homey.Driver {
         this.error('❌ Login failed');
         this.error(err);
 
-        throw new Error('Inloggen bij DeWarmte mislukt');
+        throw new Error(this.homey.__('pair.login.error'));
 
       }
 

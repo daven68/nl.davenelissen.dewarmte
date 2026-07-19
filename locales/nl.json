@@ -1,1 +1,16 @@
-{}
+{
+  "pair": {
+    "login": {
+      "title": "Inloggen op DeWarmte",
+      "subtitle": "Gebruik je DeWarmte-account om je warmtepomp te vinden.",
+      "email": "E-mailadres",
+      "password": "Wachtwoord",
+      "button": "Inloggen",
+      "error": "Inloggen bij DeWarmte is mislukt."
+    }
+  },
+  "device": {
+    "session_missing": "DeWarmte-sessie ontbreekt. Koppel het apparaat opnieuw.",
+    "connection_failed": "Kan geen verbinding maken met DeWarmte."
+  }
+}

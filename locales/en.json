@@ -1,1 +1,16 @@
-{}
+{
+  "pair": {
+    "login": {
+      "title": "Sign in to DeWarmte",
+      "subtitle": "Use your DeWarmte account to find your heat pump.",
+      "email": "Email address",
+      "password": "Password",
+      "button": "Sign in",
+      "error": "Signing in to DeWarmte failed."
+    }
+  },
+  "device": {
+    "session_missing": "The DeWarmte session is missing. Pair the device again.",
+    "connection_failed": "Unable to connect to DeWarmte."
+  }
+}
