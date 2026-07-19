@@ -7,7 +7,6 @@
   },
   "include": [
     "app.ts",
-    "api.ts",
     "drivers/**/*.ts",
     "src/**/*.ts"
   ]
