@@ -1,4 +1,8 @@
 {
+  "1.0.4": {
+    "en": "Improved app icon compatibility with the Homey App Store.",
+    "nl": "Compatibiliteit van het appicoon met de Homey App Store verbeterd."
+  },
   "1.0.3": {
     "en": "Updated the app icon with a clearer heat pump design.",
     "nl": "Appicoon bijgewerkt met een duidelijker warmtepompontwerp."
