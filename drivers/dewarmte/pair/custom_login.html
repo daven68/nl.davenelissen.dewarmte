@@ -8,18 +8,18 @@
 <body>
 
 <header class="homey-header">
-  <h1 id="title" class="homey-title"></h1>
-  <p id="subtitle" class="homey-subtitle"></p>
+  <h1 class="homey-title" data-i18n="pair.login.title"></h1>
+  <p class="homey-subtitle" data-i18n="pair.login.subtitle"></p>
 </header>
 
 <form id="login-form" class="homey-form">
-  <label id="email-label" class="homey-form-label" for="email"></label>
+  <label class="homey-form-label" for="email" data-i18n="pair.login.email"></label>
   <input id="email" class="homey-form-input" type="email" autocomplete="username" required />
 
-  <label id="password-label" class="homey-form-label" for="password"></label>
+  <label class="homey-form-label" for="password" data-i18n="pair.login.password"></label>
   <input id="password" class="homey-form-input" type="password" autocomplete="current-password" required />
 
-  <button id="login" class="homey-button-primary" type="submit"></button>
+  <button id="login" class="homey-button-primary" type="submit" data-i18n="pair.login.button"></button>
 </form>
 
 <p id="error" role="alert" aria-live="polite"></p>
@@ -29,12 +29,6 @@
     const form = document.getElementById('login-form');
     const loginButton = document.getElementById('login');
     const errorElement = document.getElementById('error');
-
-    document.getElementById('title').textContent = Homey.__('pair.login.title');
-    document.getElementById('subtitle').textContent = Homey.__('pair.login.subtitle');
-    document.getElementById('email-label').textContent = Homey.__('pair.login.email');
-    document.getElementById('password-label').textContent = Homey.__('pair.login.password');
-    loginButton.textContent = Homey.__('pair.login.button');
 
     form.addEventListener('submit', async event => {
       event.preventDefault();

@@ -56,7 +56,7 @@ export = class DeWarmteDriver extends Homey.Driver {
 
     session.setHandler('login', async ({ email, password }: LoginData) => {
 
-      this.log(`Login attempt for ${email}`);
+      this.log('Login attempt');
 
       try {
 
