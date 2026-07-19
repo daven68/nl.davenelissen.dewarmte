@@ -1,4 +1,8 @@
 {
+  "1.0.2": {
+    "en": "Fixed the app icon rendering in the Homey App Store.",
+    "nl": "Appicoonweergave in de Homey App Store gecorrigeerd."
+  },
   "1.0.1": {
     "en": "Added read-only heat pump status, temperatures, fault indication and Flow cards.",
     "nl": "Read-only warmtepompstatus, temperaturen, storingsindicatie en Flow-kaarten toegevoegd."

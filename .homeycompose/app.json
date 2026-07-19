@@ -1,6 +1,6 @@
 {
   "id": "nl.davenelissen.dewarmte",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "compatibility": ">=12.4.0",
   "sdk": 3,
   "brandColor": "#1273DC",
