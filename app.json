@@ -1,7 +1,7 @@
 {
   "_comment": "This file is generated. Please edit .homeycompose/app.json instead.",
   "id": "nl.davenelissen.dewarmte",
-  "version": "1.0.4",
+  "version": "1.1.0",
   "compatibility": ">=12.4.0",
   "sdk": 3,
   "brandColor": "#1273DC",
@@ -14,8 +14,8 @@
     "nl": "DeWarmte"
   },
   "description": {
-    "en": "Monitor your DeWarmte heat pump and use its status and temperatures in Flow.",
-    "nl": "Monitor je DeWarmte-warmtepomp en gebruik de status en temperaturen in Flow."
+    "en": "Your DeWarmte heat pump, connected to Homey",
+    "nl": "Jouw DeWarmte-warmtepomp, verbonden met Homey"
   },
   "tags": {
     "en": [
@@ -76,6 +76,62 @@
             "filter": "driver_id=dewarmte"
           }
         ]
+      },
+      {
+        "id": "gas_boiler_active_true",
+        "title": {
+          "en": "The gas boiler became active",
+          "nl": "De cv-ketel is actief geworden"
+        },
+        "args": [
+          {
+            "type": "device",
+            "name": "device",
+            "filter": "driver_id=dewarmte"
+          }
+        ]
+      },
+      {
+        "id": "gas_boiler_active_false",
+        "title": {
+          "en": "The gas boiler became inactive",
+          "nl": "De cv-ketel is niet meer actief"
+        },
+        "args": [
+          {
+            "type": "device",
+            "name": "device",
+            "filter": "driver_id=dewarmte"
+          }
+        ]
+      },
+      {
+        "id": "thermostat_active_true",
+        "title": {
+          "en": "The thermostat became active",
+          "nl": "De thermostaat is actief geworden"
+        },
+        "args": [
+          {
+            "type": "device",
+            "name": "device",
+            "filter": "driver_id=dewarmte"
+          }
+        ]
+      },
+      {
+        "id": "thermostat_active_false",
+        "title": {
+          "en": "The thermostat became inactive",
+          "nl": "De thermostaat is niet meer actief"
+        },
+        "args": [
+          {
+            "type": "device",
+            "name": "device",
+            "filter": "driver_id=dewarmte"
+          }
+        ]
       }
     ],
     "conditions": [
@@ -121,6 +177,34 @@
             "step": 0.1
           }
         ]
+      },
+      {
+        "id": "gas_boiler_is_active",
+        "title": {
+          "en": "The gas boiler !{{is|isn't}} active",
+          "nl": "De cv-ketel !{{is|is niet}} actief"
+        },
+        "args": [
+          {
+            "type": "device",
+            "name": "device",
+            "filter": "driver_id=dewarmte"
+          }
+        ]
+      },
+      {
+        "id": "thermostat_is_active",
+        "title": {
+          "en": "The thermostat !{{is|isn't}} active",
+          "nl": "De thermostaat !{{is|is niet}} actief"
+        },
+        "args": [
+          {
+            "type": "device",
+            "name": "device",
+            "filter": "driver_id=dewarmte"
+          }
+        ]
       }
     ]
   },
@@ -135,10 +219,23 @@
         "pump_active",
         "measure_temperature",
         "measure_target_temperature",
+        "measure_supply_temperature",
+        "measure_power",
+        "measure_heat_input",
+        "measure_heat_output",
+        "measure_water_flow",
+        "gas_boiler_active",
+        "thermostat_active",
         "pump_state",
         "alarm_generic"
       ],
       "capabilitiesOptions": {
+        "measure_temperature": {
+          "title": {
+            "en": "Return temperature",
+            "nl": "Retourtemperatuur"
+          }
+        },
         "pump_active": {
           "titleTrue": {
             "en": "On",
@@ -147,6 +244,26 @@
           "titleFalse": {
             "en": "Off",
             "nl": "Uit"
+          }
+        },
+        "gas_boiler_active": {
+          "titleTrue": {
+            "en": "Active",
+            "nl": "Actief"
+          },
+          "titleFalse": {
+            "en": "Inactive",
+            "nl": "Niet actief"
+          }
+        },
+        "thermostat_active": {
+          "titleTrue": {
+            "en": "Active",
+            "nl": "Actief"
+          },
+          "titleFalse": {
+            "en": "Inactive",
+            "nl": "Niet actief"
           }
         }
       },
@@ -175,6 +292,72 @@
     }
   ],
   "capabilities": {
+    "gas_boiler_active": {
+      "type": "boolean",
+      "title": {
+        "en": "Gas boiler",
+        "nl": "Cv-ketel"
+      },
+      "getable": true,
+      "setable": false,
+      "uiComponent": "sensor",
+      "uiQuickAction": false,
+      "insightsTitleTrue": {
+        "en": "Gas boiler active",
+        "nl": "Cv-ketel actief"
+      },
+      "insightsTitleFalse": {
+        "en": "Gas boiler inactive",
+        "nl": "Cv-ketel niet actief"
+      }
+    },
+    "measure_heat_input": {
+      "type": "number",
+      "title": {
+        "en": "Heat input",
+        "nl": "Opgenomen warmte"
+      },
+      "getable": true,
+      "setable": false,
+      "uiComponent": "sensor",
+      "units": {
+        "en": "kW",
+        "nl": "kW"
+      },
+      "min": 0,
+      "decimals": 2
+    },
+    "measure_heat_output": {
+      "type": "number",
+      "title": {
+        "en": "Heat output",
+        "nl": "Afgegeven warmte"
+      },
+      "getable": true,
+      "setable": false,
+      "uiComponent": "sensor",
+      "units": {
+        "en": "kW",
+        "nl": "kW"
+      },
+      "min": 0,
+      "decimals": 2
+    },
+    "measure_supply_temperature": {
+      "type": "number",
+      "title": {
+        "en": "Supply temperature",
+        "nl": "Aanvoertemperatuur"
+      },
+      "getable": true,
+      "setable": false,
+      "uiComponent": "sensor",
+      "units": {
+        "en": "°C",
+        "nl": "°C"
+      },
+      "decimals": 1
+    },
     "measure_target_temperature": {
       "type": "number",
       "getable": true,
@@ -189,6 +372,22 @@
         "en": "Target supply temperature",
         "nl": "Doelaanvoertemperatuur"
       }
+    },
+    "measure_water_flow": {
+      "type": "number",
+      "title": {
+        "en": "Water flow",
+        "nl": "Waterdebiet"
+      },
+      "getable": true,
+      "setable": false,
+      "uiComponent": "sensor",
+      "units": {
+        "en": "L/min",
+        "nl": "L/min"
+      },
+      "min": 0,
+      "decimals": 2
     },
     "pump_active": {
       "type": "boolean",
@@ -226,6 +425,25 @@
           }
         }
       ]
+    },
+    "thermostat_active": {
+      "type": "boolean",
+      "title": {
+        "en": "Thermostat",
+        "nl": "Thermostaat"
+      },
+      "getable": true,
+      "setable": false,
+      "uiComponent": "sensor",
+      "uiQuickAction": false,
+      "insightsTitleTrue": {
+        "en": "Thermostat active",
+        "nl": "Thermostaat actief"
+      },
+      "insightsTitleFalse": {
+        "en": "Thermostat inactive",
+        "nl": "Thermostaat niet actief"
+      }
     }
   }
 }

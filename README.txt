@@ -1,3 +1,5 @@
-Monitor your DeWarmte heat pump with Homey. View the current supply temperature, target supply temperature, operating status and general fault status. Use Flow to respond to status and temperature changes.
+Monitor your DeWarmte heat pump with Homey. View its operating status, supply, return and target temperatures, electrical power, heat input and output, water flow, thermostat demand, gas boiler assistance and general fault status.
 
-This first version is completely read-only and has been tested with a DeWarmte pompAO. Other DeWarmte heat pump models have not yet been tested. The app will be expanded step by step with more insights, Flow options, a dashboard widget and additional functionality.
+Use Flow to respond when the heat pump, thermostat or gas boiler changes state. Measurements are available in Homey Insights.
+
+The app is completely read-only and has been tested with a DeWarmte pompAO. Other DeWarmte heat pump models have not yet been tested. The app will be expanded step by step with more insights, Flow options, a dashboard widget and additional functionality.

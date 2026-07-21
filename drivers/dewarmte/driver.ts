@@ -44,6 +44,18 @@ export = class DeWarmteDriver extends Homey.Driver {
         return typeof targetTemperature === 'number'
           && targetTemperature > temperature;
       });
+
+    this.homey.flow
+      .getConditionCard('gas_boiler_is_active')
+      .registerRunListener(({ device }: { device: InstanceType<typeof Homey.Device> }) => {
+        return device.getCapabilityValue('gas_boiler_active') === true;
+      });
+
+    this.homey.flow
+      .getConditionCard('thermostat_is_active')
+      .registerRunListener(({ device }: { device: InstanceType<typeof Homey.Device> }) => {
+        return device.getCapabilityValue('thermostat_active') === true;
+      });
   }
 
   async onPair(session: PairSession) {

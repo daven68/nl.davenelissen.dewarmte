@@ -1,0 +1,19 @@
+{
+  "type": "boolean",
+  "title": {
+    "en": "Gas boiler",
+    "nl": "Cv-ketel"
+  },
+  "getable": true,
+  "setable": false,
+  "uiComponent": "sensor",
+  "uiQuickAction": false,
+  "insightsTitleTrue": {
+    "en": "Gas boiler active",
+    "nl": "Cv-ketel actief"
+  },
+  "insightsTitleFalse": {
+    "en": "Gas boiler inactive",
+    "nl": "Cv-ketel niet actief"
+  }
+}

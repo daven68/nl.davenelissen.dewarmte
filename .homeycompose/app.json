@@ -1,6 +1,6 @@
 {
   "id": "nl.davenelissen.dewarmte",
-  "version": "1.0.4",
+  "version": "1.1.0",
   "compatibility": ">=12.4.0",
   "sdk": 3,
   "brandColor": "#1273DC",
@@ -13,8 +13,8 @@
     "nl": "DeWarmte"
   },
   "description": {
-    "en": "Monitor your DeWarmte heat pump and use its status and temperatures in Flow.",
-    "nl": "Monitor je DeWarmte-warmtepomp en gebruik de status en temperaturen in Flow."
+    "en": "Your DeWarmte heat pump, connected to Homey",
+    "nl": "Jouw DeWarmte-warmtepomp, verbonden met Homey"
   },
   "tags": {
     "en": [

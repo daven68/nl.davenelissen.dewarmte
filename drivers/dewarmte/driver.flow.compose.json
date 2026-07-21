@@ -13,6 +13,34 @@
         "en": "The target supply temperature changed",
         "nl": "De doelaanvoertemperatuur is gewijzigd"
       }
+    },
+    {
+      "id": "gas_boiler_active_true",
+      "title": {
+        "en": "The gas boiler became active",
+        "nl": "De cv-ketel is actief geworden"
+      }
+    },
+    {
+      "id": "gas_boiler_active_false",
+      "title": {
+        "en": "The gas boiler became inactive",
+        "nl": "De cv-ketel is niet meer actief"
+      }
+    },
+    {
+      "id": "thermostat_active_true",
+      "title": {
+        "en": "The thermostat became active",
+        "nl": "De thermostaat is actief geworden"
+      }
+    },
+    {
+      "id": "thermostat_active_false",
+      "title": {
+        "en": "The thermostat became inactive",
+        "nl": "De thermostaat is niet meer actief"
+      }
     }
   ],
   "conditions": [
@@ -46,6 +74,20 @@
           "step": 0.1
         }
       ]
+    },
+    {
+      "id": "gas_boiler_is_active",
+      "title": {
+        "en": "The gas boiler !{{is|isn't}} active",
+        "nl": "De cv-ketel !{{is|is niet}} actief"
+      }
+    },
+    {
+      "id": "thermostat_is_active",
+      "title": {
+        "en": "The thermostat !{{is|isn't}} active",
+        "nl": "De thermostaat !{{is|is niet}} actief"
+      }
     }
   ]
 }

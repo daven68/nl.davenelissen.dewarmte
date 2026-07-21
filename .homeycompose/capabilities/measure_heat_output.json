@@ -1,0 +1,16 @@
+{
+  "type": "number",
+  "title": {
+    "en": "Heat output",
+    "nl": "Afgegeven warmte"
+  },
+  "getable": true,
+  "setable": false,
+  "uiComponent": "sensor",
+  "units": {
+    "en": "kW",
+    "nl": "kW"
+  },
+  "min": 0,
+  "decimals": 2
+}

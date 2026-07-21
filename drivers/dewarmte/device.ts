@@ -82,6 +82,28 @@ class DeWarmteDevice extends Homey.Device {
       await this.addCapability('pump_state');
     }
 
+    if (!this.hasCapability('measure_power')) {
+      await this.addCapability('measure_power');
+    }
+
+    if (!this.hasCapability('gas_boiler_active')) {
+      await this.addCapability('gas_boiler_active');
+    }
+
+    const additionalCapabilities = [
+      'measure_supply_temperature',
+      'measure_heat_input',
+      'measure_heat_output',
+      'measure_water_flow',
+      'thermostat_active',
+    ];
+
+    for (const capability of additionalCapabilities) {
+      if (!this.hasCapability(capability)) {
+        await this.addCapability(capability);
+      }
+    }
+
     if (this.hasCapability('target_temperature')) {
       await this.removeCapability('target_temperature');
     }
@@ -189,6 +211,34 @@ class DeWarmteDevice extends Homey.Device {
       this.setCapabilityValue(
         'measure_target_temperature',
         product.status.target_temperature,
+      ),
+      this.setCapabilityValue(
+        'measure_supply_temperature',
+        product.status.supply_temperature,
+      ),
+      this.setCapabilityValue(
+        'measure_power',
+        product.status.electricity_consumption * 1000,
+      ),
+      this.setCapabilityValue(
+        'gas_boiler_active',
+        product.status.gas_boiler,
+      ),
+      this.setCapabilityValue(
+        'measure_heat_input',
+        product.status.heat_input,
+      ),
+      this.setCapabilityValue(
+        'measure_heat_output',
+        product.status.heat_output,
+      ),
+      this.setCapabilityValue(
+        'measure_water_flow',
+        product.status.water_flow,
+      ),
+      this.setCapabilityValue(
+        'thermostat_active',
+        product.status.thermostat,
       ),
       this.setCapabilityValue(
         'pump_state',

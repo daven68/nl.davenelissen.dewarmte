@@ -1,4 +1,8 @@
 {
+  "1.1.0": {
+    "en": "Added electrical power, supply and return temperatures, heat input and output, water flow, gas boiler status, thermostat status and new Flow cards.",
+    "nl": "Elektrisch vermogen, aanvoer- en retourtemperatuur, opgenomen en afgegeven warmte, waterdebiet, cv-ketelstatus, thermostaatstatus en nieuwe Flow-kaarten toegevoegd."
+  },
   "1.0.4": {
     "en": "Improved app icon compatibility with the Homey App Store.",
     "nl": "Compatibiliteit van het appicoon met de Homey App Store verbeterd."

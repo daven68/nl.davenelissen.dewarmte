@@ -1,0 +1,19 @@
+{
+  "type": "boolean",
+  "title": {
+    "en": "Thermostat",
+    "nl": "Thermostaat"
+  },
+  "getable": true,
+  "setable": false,
+  "uiComponent": "sensor",
+  "uiQuickAction": false,
+  "insightsTitleTrue": {
+    "en": "Thermostat active",
+    "nl": "Thermostaat actief"
+  },
+  "insightsTitleFalse": {
+    "en": "Thermostat inactive",
+    "nl": "Thermostaat niet actief"
+  }
+}

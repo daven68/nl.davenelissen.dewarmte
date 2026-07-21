@@ -8,10 +8,23 @@
     "pump_active",
     "measure_temperature",
     "measure_target_temperature",
+    "measure_supply_temperature",
+    "measure_power",
+    "measure_heat_input",
+    "measure_heat_output",
+    "measure_water_flow",
+    "gas_boiler_active",
+    "thermostat_active",
     "pump_state",
     "alarm_generic"
   ],
   "capabilitiesOptions": {
+    "measure_temperature": {
+      "title": {
+        "en": "Return temperature",
+        "nl": "Retourtemperatuur"
+      }
+    },
     "pump_active": {
       "titleTrue": {
         "en": "On",
@@ -20,6 +33,26 @@
       "titleFalse": {
         "en": "Off",
         "nl": "Uit"
+      }
+    },
+    "gas_boiler_active": {
+      "titleTrue": {
+        "en": "Active",
+        "nl": "Actief"
+      },
+      "titleFalse": {
+        "en": "Inactive",
+        "nl": "Niet actief"
+      }
+    },
+    "thermostat_active": {
+      "titleTrue": {
+        "en": "Active",
+        "nl": "Actief"
+      },
+      "titleFalse": {
+        "en": "Inactive",
+        "nl": "Niet actief"
       }
     }
   },

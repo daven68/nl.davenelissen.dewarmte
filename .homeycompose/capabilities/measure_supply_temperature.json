@@ -1,0 +1,15 @@
+{
+  "type": "number",
+  "title": {
+    "en": "Supply temperature",
+    "nl": "Aanvoertemperatuur"
+  },
+  "getable": true,
+  "setable": false,
+  "uiComponent": "sensor",
+  "units": {
+    "en": "°C",
+    "nl": "°C"
+  },
+  "decimals": 1
+}
