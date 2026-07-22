@@ -17,6 +17,19 @@
   "overrides": [
     {
       "files": [
+        "widgets/**/*.js",
+        "widgets/**/*.d.ts"
+      ],
+      "parserOptions": {
+        "project": "./widgets/tsconfig.json"
+      },
+      "env": {
+        "browser": true,
+        "node": true
+      }
+    },
+    {
+      "files": [
         "*.ts"
       ],
       "rules": {

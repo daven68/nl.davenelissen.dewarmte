@@ -1,0 +1,35 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" href="style.css">
+  </head>
+  <body class="homey-widget">
+    <main class="widget" aria-live="polite">
+      <section class="status-overview">
+        <span id="pump-status">--</span>
+        <span id="thermostat-status">--</span>
+        <span id="boiler-status">--</span>
+        <span id="alarm-status">--</span>
+      </section>
+
+      <section class="temperatures">
+        <article><span data-i18n="supply">Supply</span><strong id="supply-temperature">--</strong></article>
+        <article><span data-i18n="return">Return</span><strong id="return-temperature">--</strong></article>
+        <article><span data-i18n="target">Target</span><strong id="target-temperature">--</strong></article>
+      </section>
+
+      <section class="metrics">
+        <div><span data-i18n="electric">Electric</span><strong id="electrical-power">--</strong></div>
+        <div><span data-i18n="heatInput">Heat input</span><strong id="heat-input">--</strong></div>
+        <div><span data-i18n="heatOutput">Heat output</span><strong id="heat-output">--</strong></div>
+        <div><span data-i18n="waterFlow">Water flow</span><strong id="water-flow">--</strong></div>
+      </section>
+
+      <p id="error-message" class="error" hidden></p>
+    </main>
+
+    <script src="widget.js"></script>
+  </body>
+</html>

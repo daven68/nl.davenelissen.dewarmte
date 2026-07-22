@@ -1,4 +1,8 @@
 {
+  "1.2.0": {
+    "en": "Added a dashboard widget with heat pump performance, temperatures, power, water flow, thermostat demand, gas boiler assistance and fault status.",
+    "nl": "Dashboardwidget toegevoegd met warmtepompprestaties, temperaturen, vermogen, water flow, thermostaatvraag, cv-ketelondersteuning en storingsstatus."
+  },
   "1.1.0": {
     "en": "Added electrical power, supply and return temperatures, heat input and output, water flow, gas boiler status, thermostat status and new Flow cards.",
     "nl": "Elektrisch vermogen, aanvoer- en retourtemperatuur, opgenomen en afgegeven warmte, waterdebiet, cv-ketelstatus, thermostaatstatus en nieuwe Flow-kaarten toegevoegd."

@@ -1,6 +1,6 @@
 {
   "id": "nl.davenelissen.dewarmte",
-  "version": "1.1.0",
+  "version": "1.2.0",
   "compatibility": ">=12.4.0",
   "sdk": 3,
   "brandColor": "#1273DC",
@@ -13,8 +13,8 @@
     "nl": "DeWarmte"
   },
   "description": {
-    "en": "Your DeWarmte heat pump, connected to Homey",
-    "nl": "Jouw DeWarmte-warmtepomp, verbonden met Homey"
+    "en": "See how your heat pump performs, at a glance",
+    "nl": "Zie in één oogopslag hoe je warmtepomp presteert"
   },
   "tags": {
     "en": [
@@ -45,5 +45,12 @@
   "support": "https://github.com/daven68/nl.davenelissen.dewarmte/issues",
   "bugs": {
     "url": "https://github.com/daven68/nl.davenelissen.dewarmte/issues"
+  },
+  "contributing": {
+    "donate": {
+      "paypal": {
+        "username": "davenelissen"
+      }
+    }
   }
 }

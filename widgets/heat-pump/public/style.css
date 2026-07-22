@@ -1,0 +1,120 @@
+:root {
+  color-scheme: light dark;
+  --dewarmte-surface: rgba(255, 255, 255, 0.38);
+  --dewarmte-border: rgba(255, 255, 255, 0.52);
+  --dewarmte-shadow: rgba(21, 52, 88, 0.09);
+  --dewarmte-muted: rgba(17, 31, 48, 0.08);
+}
+
+html,
+body {
+  margin: 0;
+  min-height: 100%;
+}
+
+body.homey-widget {
+  background:
+    linear-gradient(140deg, rgba(248, 252, 255, 0.5), rgba(226, 241, 245, 0.38)),
+    url('heat-pump-background.jpg') center / cover no-repeat;
+}
+
+.widget {
+  position: relative;
+  display: grid;
+  gap: var(--homey-su-4);
+  min-height: 100%;
+  color: var(--homey-color-text);
+}
+
+.temperatures,
+.metrics,
+.status-overview {
+  display: flex;
+  align-items: center;
+}
+
+.status-overview {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: var(--homey-su-2);
+}
+
+.status-overview span {
+  border-radius: 999px;
+  padding: 5px 9px;
+  border: 1px solid var(--dewarmte-border);
+  background: var(--dewarmte-muted);
+  box-shadow: 0 5px 14px var(--dewarmte-shadow);
+  font-size: 12px;
+  font-weight: 700;
+  text-align: center;
+}
+
+.status-overview .active,
+.status-overview .healthy {
+  color: #087443;
+  background: #dff7ea;
+}
+
+.status-overview .fault {
+  color: #a6192e;
+  background: #fde5e8;
+}
+
+.temperatures {
+  gap: var(--homey-su-2);
+}
+
+.metrics {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: var(--homey-su-2);
+}
+
+.temperatures article,
+.metrics div {
+  flex: 1;
+  border-radius: var(--homey-border-radius-default);
+  padding: var(--homey-su-3);
+  border: 1px solid var(--dewarmte-border);
+  background: var(--dewarmte-surface);
+  box-shadow: 0 9px 24px var(--dewarmte-shadow);
+  backdrop-filter: blur(14px);
+}
+
+.temperatures span,
+.metrics span {
+  display: block;
+  margin-bottom: 4px;
+  color: var(--homey-color-text-light);
+  font-size: 12px;
+}
+
+.temperatures strong {
+  font-size: 24px;
+}
+
+.metrics strong {
+  font-size: 15px;
+}
+
+.error {
+  margin: 0;
+  color: var(--homey-color-red);
+  font-size: 13px;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --dewarmte-surface: rgba(255, 255, 255, 0.06);
+    --dewarmte-border: rgba(255, 255, 255, 0.12);
+    --dewarmte-shadow: rgba(0, 0, 0, 0.22);
+    --dewarmte-muted: rgba(255, 255, 255, 0.07);
+  }
+
+  body.homey-widget {
+    background:
+      linear-gradient(140deg, rgba(8, 17, 27, 0.58), rgba(12, 31, 33, 0.52)),
+      url('heat-pump-background.jpg') center / cover no-repeat;
+  }
+}

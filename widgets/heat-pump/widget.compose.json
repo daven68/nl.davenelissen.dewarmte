@@ -1,0 +1,22 @@
+{
+  "name": {
+    "en": "DeWarmte Heat Pump",
+    "nl": "DeWarmte Warmtepomp"
+  },
+  "height": 330,
+  "devices": {
+    "type": "app",
+    "singular": true,
+    "filter": {
+      "class": "heatpump",
+      "capabilities": "pump_active,measure_temperature"
+    }
+  },
+  "settings": [],
+  "api": {
+    "getStatus": {
+      "method": "GET",
+      "path": "/status"
+    }
+  }
+}

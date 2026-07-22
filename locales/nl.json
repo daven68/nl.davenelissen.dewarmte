@@ -12,5 +12,27 @@
   "device": {
     "session_missing": "DeWarmte-sessie ontbreekt. Koppel het apparaat opnieuw.",
     "connection_failed": "Kan geen verbinding maken met DeWarmte."
+  },
+  "widget": {
+    "heatPump": {
+      "supply": "Aanvoer",
+      "return": "Retour",
+      "target": "Doel",
+      "electric": "Elektrisch",
+      "heatInput": "Heat input",
+      "heatOutput": "Warmteafgifte",
+      "waterFlow": "Water flow",
+      "heatPumpRunning": "Warmtepomp draait",
+      "heatPumpOff": "Warmtepomp uit",
+      "thermostat": "Thermostaat uit",
+      "thermostatActive": "Thermostaat aan",
+      "gasBoilerOn": "CV aan",
+      "gasBoilerOff": "CV uit",
+      "fault": "Storing",
+      "noFault": "Geen storing",
+      "selectDevice": "Selecteer een DeWarmte-warmtepomp in de widgetinstellingen.",
+      "loadError": "De warmtepompgegevens konden niet worden geladen.",
+      "deviceUnavailable": "De warmtepomp is tijdelijk niet beschikbaar."
+    }
   }
 }

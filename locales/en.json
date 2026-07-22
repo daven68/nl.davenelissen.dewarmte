@@ -12,5 +12,27 @@
   "device": {
     "session_missing": "The DeWarmte session is missing. Pair the device again.",
     "connection_failed": "Unable to connect to DeWarmte."
+  },
+  "widget": {
+    "heatPump": {
+      "supply": "Supply",
+      "return": "Return",
+      "target": "Target",
+      "electric": "Electric",
+      "heatInput": "Heat input",
+      "heatOutput": "Heat output",
+      "waterFlow": "Water flow",
+      "heatPumpRunning": "Heat pump running",
+      "heatPumpOff": "Heat pump off",
+      "thermostat": "Thermostat off",
+      "thermostatActive": "Thermostat on",
+      "gasBoilerOn": "Gas boiler on",
+      "gasBoilerOff": "Gas boiler off",
+      "fault": "Fault",
+      "noFault": "No fault",
+      "selectDevice": "Select a DeWarmte heat pump in the widget settings.",
+      "loadError": "Could not load heat pump data.",
+      "deviceUnavailable": "The heat pump is temporarily unavailable."
+    }
   }
 }

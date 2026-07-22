@@ -2,7 +2,7 @@
   "type": "number",
   "title": {
     "en": "Water flow",
-    "nl": "Waterdebiet"
+    "nl": "Water flow"
   },
   "getable": true,
   "setable": false,
