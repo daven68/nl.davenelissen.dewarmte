@@ -1,4 +1,8 @@
 {
+  "1.2.1": {
+    "en": "Added privacy-friendly diagnostics for inspecting heat pump API data and capabilities.",
+    "nl": "Privacyvriendelijke diagnostiek toegevoegd voor het controleren van warmtepomp-API-gegevens en capabilities."
+  },
   "1.2.0": {
     "en": "Added a dashboard widget with heat pump performance, temperatures, power, water flow, thermostat demand, gas boiler assistance and fault status.",
     "nl": "Dashboardwidget toegevoegd met warmtepompprestaties, temperaturen, vermogen, water flow, thermostaatvraag, cv-ketelondersteuning en storingsstatus."

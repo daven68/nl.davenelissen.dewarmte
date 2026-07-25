@@ -30,6 +30,25 @@
     },
     {
       "files": [
+        "api.js",
+        "settings/**/*.js"
+      ],
+      "excludedFiles": [
+        "widgets/**/*.js"
+      ],
+      "parserOptions": {
+        "project": "./settings/tsconfig.json"
+      },
+      "env": {
+        "browser": true,
+        "node": true
+      },
+      "rules": {
+        "node/no-unsupported-features/node-builtins": "off"
+      }
+    },
+    {
+      "files": [
         "*.ts"
       ],
       "rules": {

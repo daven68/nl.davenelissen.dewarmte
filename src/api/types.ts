@@ -1,4 +1,5 @@
 export interface ProductStatus {
+  [key: string]: unknown;
   time: string;
   is_on: boolean;
   heat_input: number;

@@ -1,6 +1,6 @@
 {
   "id": "nl.davenelissen.dewarmte",
-  "version": "1.2.0",
+  "version": "1.2.1",
   "compatibility": ">=12.4.0",
   "sdk": 3,
   "brandColor": "#1273DC",
@@ -32,6 +32,16 @@
     "climate"
   ],
   "permissions": [],
+  "api": {
+    "getDiagnosticDevices": {
+      "method": "GET",
+      "path": "/diagnostics/devices"
+    },
+    "getDiagnosticReport": {
+      "method": "GET",
+      "path": "/diagnostics/:deviceId"
+    }
+  },
   "images": {
     "small": "/assets/images/small.png",
     "large": "/assets/images/large.png",

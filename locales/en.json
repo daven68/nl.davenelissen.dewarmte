@@ -13,6 +13,27 @@
     "session_missing": "The DeWarmte session is missing. Pair the device again.",
     "connection_failed": "Unable to connect to DeWarmte."
   },
+  "settings": {
+    "diagnostics": {
+      "title": "Diagnostics",
+      "subtitle": "Create a privacy-friendly technical report for your heat pump.",
+      "deviceLegend": "Heat pump",
+      "deviceLabel": "Device",
+      "load": "Create diagnostic report",
+      "loading": "Loading…",
+      "privacyTitle": "Privacy",
+      "privacyText": "Credentials, product IDs and device names are not included. Review the report before sharing it.",
+      "reportLabel": "Diagnostic report",
+      "copy": "Copy",
+      "download": "Download JSON",
+      "created": "The diagnostic report is ready.",
+      "copied": "The report has been copied.",
+      "downloaded": "The report has been downloaded.",
+      "noDevices": "No paired DeWarmte heat pump was found.",
+      "devicesError": "The paired heat pumps could not be loaded.",
+      "loadError": "The diagnostic report could not be created."
+    }
+  },
   "widget": {
     "heatPump": {
       "supply": "Supply",

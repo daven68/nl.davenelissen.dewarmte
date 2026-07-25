@@ -13,6 +13,27 @@
     "session_missing": "DeWarmte-sessie ontbreekt. Koppel het apparaat opnieuw.",
     "connection_failed": "Kan geen verbinding maken met DeWarmte."
   },
+  "settings": {
+    "diagnostics": {
+      "title": "Diagnostiek",
+      "subtitle": "Maak een privacyvriendelijk technisch rapport van je warmtepomp.",
+      "deviceLegend": "Warmtepomp",
+      "deviceLabel": "Apparaat",
+      "load": "Diagnoserapport maken",
+      "loading": "Ophalen…",
+      "privacyTitle": "Privacy",
+      "privacyText": "Inloggegevens, product-ID’s en apparaatnamen worden niet opgenomen. Controleer het rapport voordat je het deelt.",
+      "reportLabel": "Diagnoserapport",
+      "copy": "Kopiëren",
+      "download": "JSON downloaden",
+      "created": "Het diagnoserapport is gereed.",
+      "copied": "Het rapport is gekopieerd.",
+      "downloaded": "Het rapport is gedownload.",
+      "noDevices": "Er is geen gekoppelde DeWarmte-warmtepomp gevonden.",
+      "devicesError": "De gekoppelde warmtepompen konden niet worden geladen.",
+      "loadError": "Het diagnoserapport kon niet worden gemaakt."
+    }
+  },
   "widget": {
     "heatPump": {
       "supply": "Aanvoer",

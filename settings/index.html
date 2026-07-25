@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script type="text/javascript" src="/homey.js" data-origin="settings"></script>
+    <link rel="stylesheet" href="style.css">
+    <title data-i18n="settings.diagnostics.title">Diagnostics</title>
+  </head>
+  <body>
+    <header class="homey-header">
+      <h1 class="homey-title" data-i18n="settings.diagnostics.title">Diagnostics</h1>
+      <p class="homey-subtitle" data-i18n="settings.diagnostics.subtitle">
+        Create a privacy-friendly technical report for your heat pump.
+      </p>
+    </header>
+
+    <main>
+      <fieldset class="homey-form-fieldset">
+        <legend class="homey-form-legend" data-i18n="settings.diagnostics.deviceLegend">
+          Heat pump
+        </legend>
+        <div class="homey-form-group">
+          <label class="homey-form-label" for="device" data-i18n="settings.diagnostics.deviceLabel">
+            Device
+          </label>
+          <select class="homey-form-select" id="device"></select>
+        </div>
+        <button class="homey-button-primary-full" id="load" type="button" data-i18n="settings.diagnostics.load">
+          Create diagnostic report
+        </button>
+      </fieldset>
+
+      <section id="report-section" hidden>
+        <div class="privacy-note">
+          <strong data-i18n="settings.diagnostics.privacyTitle">Privacy</strong>
+          <p data-i18n="settings.diagnostics.privacyText">
+            Credentials, product IDs and device names are not included. Review the report before sharing it.
+          </p>
+        </div>
+
+        <label class="homey-form-label" for="report" data-i18n="settings.diagnostics.reportLabel">
+          Diagnostic report
+        </label>
+        <pre id="report" tabindex="0"></pre>
+
+        <div class="actions">
+          <button class="homey-button-secondary" id="copy" type="button" data-i18n="settings.diagnostics.copy">
+            Copy
+          </button>
+          <button class="homey-button-secondary" id="download" type="button" data-i18n="settings.diagnostics.download">
+            Download JSON
+          </button>
+        </div>
+      </section>
+
+      <p id="message" role="status" aria-live="polite"></p>
+    </main>
+
+    <script src="diagnostics.js"></script>
+  </body>
+</html>
