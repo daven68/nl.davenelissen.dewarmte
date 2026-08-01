@@ -10,13 +10,18 @@ const { DeWarmteClient } = require('../../src/api/client');
 const { AuthService } = require('../../src/api/auth');
 const { ProductService } = require('../../src/api/products');
 
-const EXPECTED_STATUS_FIELDS = [
+const COMMON_EXPECTED_STATUS_FIELDS = [
   'time',
   'is_on',
   'heat_input',
   'heat_output',
-  'water_flow',
   'electricity_consumption',
+  'errors',
+  'is_connected',
+];
+
+const SPACE_HEATING_STATUS_FIELDS = [
+  'water_flow',
   'gas_boiler',
   'thermostat',
   'supply_temperature',
@@ -24,8 +29,35 @@ const EXPECTED_STATUS_FIELDS = [
   'target_temperature',
   'fault_code',
   'electric_backup_usage',
-  'errors',
-  'is_connected',
+];
+
+const POMP_T_STATUS_FIELDS = [
+  'top_boiler_temp',
+  'bottom_boiler_temp',
+  'fault_code',
+];
+
+const COMMON_CAPABILITIES = [
+  'pump_active',
+  'pump_state',
+  'measure_power',
+  'measure_heat_input',
+  'measure_heat_output',
+  'alarm_generic',
+];
+
+const SPACE_HEATING_CAPABILITIES = [
+  'measure_temperature',
+  'measure_target_temperature',
+  'measure_supply_temperature',
+  'measure_water_flow',
+  'gas_boiler_active',
+  'thermostat_active',
+];
+
+const POMP_T_CAPABILITIES = [
+  'measure_boiler_temperature_top',
+  'measure_boiler_temperature_bottom',
 ];
 
 const SENSITIVE_STATUS_KEY = /(?:token|secret|password|email|serial|address|phone|customer|account|name|location|(?:^|_)(?:id|uuid|mac|ip)(?:$|_))/i;
@@ -86,6 +118,34 @@ function getValueType(value: unknown): string {
   }
 
   return typeof value;
+}
+
+function normalizeProductType(productType: unknown): string {
+  return String(productType || '')
+    .toUpperCase()
+    .replace(/[^A-Z0-9]/g, '');
+}
+
+function isPompT(productType: unknown): boolean {
+  const normalizedType = normalizeProductType(productType);
+  return normalizedType === 'PT' || normalizedType === 'POMPT';
+}
+
+function hasFault(status: Product['status']): boolean {
+  const errors = Array.isArray(status.errors) ? status.errors : [];
+  const faultCode = status.fault_code;
+  let hasFaultCode = false;
+
+  if (typeof faultCode === 'number') {
+    hasFaultCode = ![0, -1].includes(faultCode);
+  } else if (typeof faultCode === 'string') {
+    const normalizedFaultCode = faultCode.trim().toLowerCase();
+    hasFaultCode = !['', '0', '-1', 'none', 'null'].includes(
+      normalizedFaultCode,
+    );
+  }
+
+  return hasFaultCode || errors.length > 0;
 }
 
 class DeWarmteDevice extends Homey.Device {
@@ -149,37 +209,27 @@ class DeWarmteDevice extends Homey.Device {
       await this.setClass('heatpump');
     }
 
-    if (!this.hasCapability('measure_target_temperature')) {
-      await this.addCapability('measure_target_temperature');
-    }
-
-    if (!this.hasCapability('pump_active')) {
-      await this.addCapability('pump_active');
-    }
-
-    if (!this.hasCapability('pump_state')) {
-      await this.addCapability('pump_state');
-    }
-
-    if (!this.hasCapability('measure_power')) {
-      await this.addCapability('measure_power');
-    }
-
-    if (!this.hasCapability('gas_boiler_active')) {
-      await this.addCapability('gas_boiler_active');
-    }
-
-    const additionalCapabilities = [
-      'measure_supply_temperature',
-      'measure_heat_input',
-      'measure_heat_output',
-      'measure_water_flow',
-      'thermostat_active',
+    const pompT = isPompT(this.getSetting('model'));
+    const modelCapabilities = pompT
+      ? POMP_T_CAPABILITIES
+      : SPACE_HEATING_CAPABILITIES;
+    const desiredCapabilities = [
+      ...COMMON_CAPABILITIES,
+      ...modelCapabilities,
     ];
+    const unsupportedCapabilities = pompT
+      ? SPACE_HEATING_CAPABILITIES
+      : POMP_T_CAPABILITIES;
 
-    for (const capability of additionalCapabilities) {
+    for (const capability of desiredCapabilities) {
       if (!this.hasCapability(capability)) {
         await this.addCapability(capability);
+      }
+    }
+
+    for (const capability of unsupportedCapabilities) {
+      if (this.hasCapability(capability)) {
+        await this.removeCapability(capability);
       }
     }
 
@@ -189,18 +239,24 @@ class DeWarmteDevice extends Homey.Device {
   }
 
   private async poll(): Promise<void> {
+    let isConnected: boolean;
+
     try {
-      await this.updateCapabilities();
+      isConnected = await this.updateCapabilities();
     } catch (err) {
       if (!axios.isAxiosError(err) || err.response?.status !== 401) {
         throw err;
       }
 
       await this.refreshSession();
-      await this.updateCapabilities();
+      isConnected = await this.updateCapabilities();
     }
 
-    await this.setAvailable();
+    if (isConnected) {
+      await this.setAvailable();
+    } else {
+      await this.setUnavailable(this.homey.__('device.disconnected'));
+    }
   }
 
   private async refreshSession(): Promise<void> {
@@ -252,6 +308,13 @@ class DeWarmteDevice extends Homey.Device {
       : {};
     const statusEntries = Object.entries(status);
     const statusKeys = Object.keys(status);
+    const productType = product.type || this.getSetting('model') || 'unknown';
+    const expectedStatusFields = [
+      ...COMMON_EXPECTED_STATUS_FIELDS,
+      ...(isPompT(productType)
+        ? POMP_T_STATUS_FIELDS
+        : SPACE_HEATING_STATUS_FIELDS),
+    ];
     const capabilityIds: string[] = this.getCapabilities();
     const capabilities = capabilityIds.reduce<Record<string, unknown>>(
       (result: Record<string, unknown>, capability: string) => {
@@ -265,7 +328,7 @@ class DeWarmteDevice extends Homey.Device {
       diagnosticVersion: 1,
       generatedAt: new Date().toISOString(),
       appVersion: Homey.manifest.version,
-      productType: product.type || this.getSetting('model') || 'unknown',
+      productType,
       available: this.getAvailable(),
       apiStatusContainerType: getValueType(rawStatus),
       apiStatus: sanitizeDiagnosticValue(status),
@@ -276,7 +339,7 @@ class DeWarmteDevice extends Homey.Device {
         },
         {},
       ),
-      missingExpectedStatusFields: EXPECTED_STATUS_FIELDS.filter((key) => {
+      missingExpectedStatusFields: expectedStatusFields.filter((key) => {
         return !statusKeys.includes(key);
       }),
       nullStatusFields: statusEntries
@@ -326,19 +389,30 @@ class DeWarmteDevice extends Homey.Device {
     return product;
   }
 
-  private async updateCapabilities(): Promise<void> {
+  private async setCapabilityValueIfPresent(
+    capability: string,
+    value: unknown,
+  ): Promise<void> {
+    if (!this.hasCapability(capability) || value === undefined) {
+      return;
+    }
+
+    if (typeof value === 'number' && !Number.isFinite(value)) {
+      return;
+    }
+
+    await this.setCapabilityValue(capability, value);
+  }
+
+  private async updateCapabilities(): Promise<boolean> {
     this.log('refreshDevice() called');
 
     const product = await this.getCurrentProduct();
 
     this.log(`Product received: ${product.id}`);
 
-    const errors = Array.isArray(product.status.errors)
-      ? product.status.errors
-      : [];
-
-    const hasAlarm = ![0, -1].includes(product.status.fault_code)
-      || errors.length > 0;
+    const errors = Array.isArray(product.status.errors) ? product.status.errors : [];
+    const hasAlarm = hasFault(product.status);
 
     this.log(
       `Status updated: actual=${product.status.actual_temperature}, `
@@ -348,54 +422,66 @@ class DeWarmteDevice extends Homey.Device {
       + `hasAlarm=${hasAlarm}`,
     );
 
-    const capabilityUpdates = [
-      this.setCapabilityValue('pump_active', product.status.is_on),
-      this.setCapabilityValue(
-        'measure_temperature',
-        product.status.actual_temperature,
-      ),
-      this.setCapabilityValue(
-        'measure_target_temperature',
-        product.status.target_temperature,
-      ),
-      this.setCapabilityValue(
-        'measure_supply_temperature',
-        product.status.supply_temperature,
-      ),
-      this.setCapabilityValue(
+    const capabilityUpdates: Promise<void>[] = [
+      this.setCapabilityValueIfPresent('pump_active', product.status.is_on),
+      this.setCapabilityValueIfPresent(
         'measure_power',
         product.status.electricity_consumption * 1000,
       ),
-      this.setCapabilityValue(
-        'gas_boiler_active',
-        product.status.gas_boiler,
-      ),
-      this.setCapabilityValue(
-        'measure_heat_input',
-        product.status.heat_input,
-      ),
-      this.setCapabilityValue(
-        'measure_heat_output',
-        product.status.heat_output,
-      ),
-      this.setCapabilityValue(
-        'measure_water_flow',
-        product.status.water_flow,
-      ),
-      this.setCapabilityValue(
-        'thermostat_active',
-        product.status.thermostat,
-      ),
-      this.setCapabilityValue(
+      this.setCapabilityValueIfPresent('measure_heat_input', product.status.heat_input),
+      this.setCapabilityValueIfPresent('measure_heat_output', product.status.heat_output),
+      this.setCapabilityValueIfPresent(
         'pump_state',
         product.status.is_on ? 'on' : 'off',
       ),
-      this.setCapabilityValue('alarm_generic', hasAlarm),
+      this.setCapabilityValueIfPresent('alarm_generic', hasAlarm),
     ];
+
+    if (isPompT(product.type || this.getSetting('model'))) {
+      capabilityUpdates.push(
+        this.setCapabilityValueIfPresent(
+          'measure_boiler_temperature_top',
+          product.status.top_boiler_temp,
+        ),
+        this.setCapabilityValueIfPresent(
+          'measure_boiler_temperature_bottom',
+          product.status.bottom_boiler_temp,
+        ),
+      );
+    } else {
+      capabilityUpdates.push(
+        this.setCapabilityValueIfPresent(
+          'measure_temperature',
+          product.status.actual_temperature,
+        ),
+        this.setCapabilityValueIfPresent(
+          'measure_target_temperature',
+          product.status.target_temperature,
+        ),
+        this.setCapabilityValueIfPresent(
+          'measure_supply_temperature',
+          product.status.supply_temperature,
+        ),
+        this.setCapabilityValueIfPresent(
+          'gas_boiler_active',
+          product.status.gas_boiler,
+        ),
+        this.setCapabilityValueIfPresent(
+          'measure_water_flow',
+          product.status.water_flow,
+        ),
+        this.setCapabilityValueIfPresent(
+          'thermostat_active',
+          product.status.thermostat,
+        ),
+      );
+    }
 
     await Promise.all(capabilityUpdates);
 
     this.log('Capabilities updated');
+
+    return product.status.is_connected !== false;
   }
 }
 

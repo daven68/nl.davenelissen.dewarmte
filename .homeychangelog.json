@@ -1,4 +1,8 @@
 {
+  "1.2.2": {
+    "en": "Added dedicated Pomp T support with top and bottom boiler temperatures, relevant device capabilities and improved fault handling.",
+    "nl": "Specifieke ondersteuning voor Pomp T toegevoegd met bovenste en onderste boilertemperatuur, relevante apparaatgegevens en verbeterde storingsafhandeling."
+  },
   "1.2.1": {
     "en": "Added privacy-friendly diagnostics for inspecting heat pump API data and capabilities.",
     "nl": "Privacyvriendelijke diagnostiek toegevoegd voor het controleren van warmtepomp-API-gegevens en capabilities."

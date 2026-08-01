@@ -11,7 +11,8 @@
   },
   "device": {
     "session_missing": "DeWarmte-sessie ontbreekt. Koppel het apparaat opnieuw.",
-    "connection_failed": "Kan geen verbinding maken met DeWarmte."
+    "connection_failed": "Kan geen verbinding maken met DeWarmte.",
+    "disconnected": "Het DeWarmte-apparaat is offline."
   },
   "settings": {
     "diagnostics": {
@@ -39,6 +40,8 @@
       "supply": "Aanvoer",
       "return": "Retour",
       "target": "Doel",
+      "boilerTop": "Boiler boven",
+      "boilerBottom": "Boiler onder",
       "electric": "Elektrisch",
       "heatInput": "Heat input",
       "heatOutput": "Warmteafgifte",

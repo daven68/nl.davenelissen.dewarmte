@@ -4,17 +4,19 @@ export interface ProductStatus {
   is_on: boolean;
   heat_input: number;
   heat_output: number;
-  water_flow: number;
   electricity_consumption: number;
-  gas_boiler: boolean;
-  thermostat: boolean;
-  supply_temperature: number;
-  actual_temperature: number;
-  target_temperature: number;
-  fault_code: number;
-  electric_backup_usage: number;
-  errors: string[];
-  is_connected: boolean;
+  water_flow?: number;
+  gas_boiler?: boolean;
+  thermostat?: boolean;
+  supply_temperature?: number;
+  actual_temperature?: number;
+  target_temperature?: number;
+  top_boiler_temp?: number;
+  bottom_boiler_temp?: number;
+  fault_code?: number | string | null;
+  electric_backup_usage?: number;
+  errors?: string[] | null;
+  is_connected?: boolean;
 }
 
 export interface Product {

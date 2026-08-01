@@ -1,0 +1,15 @@
+{
+  "type": "number",
+  "title": {
+    "en": "Boiler temperature bottom",
+    "nl": "Boilertemperatuur onder"
+  },
+  "getable": true,
+  "setable": false,
+  "uiComponent": "sensor",
+  "units": {
+    "en": "°C",
+    "nl": "°C"
+  },
+  "decimals": 1
+}

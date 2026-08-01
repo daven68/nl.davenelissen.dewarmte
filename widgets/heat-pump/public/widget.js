@@ -8,6 +8,8 @@ const elements = {
   supply: document.getElementById('supply-temperature'),
   return: document.getElementById('return-temperature'),
   target: document.getElementById('target-temperature'),
+  boilerTop: document.getElementById('boiler-top-temperature'),
+  boilerBottom: document.getElementById('boiler-bottom-temperature'),
   electrical: document.getElementById('electrical-power'),
   input: document.getElementById('heat-input'),
   output: document.getElementById('heat-output'),
@@ -47,6 +49,16 @@ function translatePage() {
 
 function render(status) {
   const { values } = status;
+  const isPompT = String(status.productType || '')
+    .toUpperCase()
+    .replace(/[^A-Z0-9]/g, '') === 'PT';
+
+  document.querySelectorAll('[data-space-heating]').forEach((element) => {
+    element.hidden = isPompT;
+  });
+  document.querySelectorAll('[data-pomp-t]').forEach((element) => {
+    element.hidden = !isPompT;
+  });
 
   elements.error.hidden = status.available !== false;
   elements.error.textContent = status.available === false
@@ -77,6 +89,16 @@ function render(status) {
   elements.supply.textContent = formatNumber(values.supplyTemperature, 1, '°C');
   elements.return.textContent = formatNumber(values.returnTemperature, 1, '°C');
   elements.target.textContent = formatNumber(values.targetTemperature, 1, '°C');
+  elements.boilerTop.textContent = formatNumber(
+    values.boilerTopTemperature,
+    1,
+    '°C',
+  );
+  elements.boilerBottom.textContent = formatNumber(
+    values.boilerBottomTemperature,
+    1,
+    '°C',
+  );
   elements.electrical.textContent = formatNumber(values.electricalPower, 0, 'W');
   elements.input.textContent = formatNumber(values.heatInput, 2, 'kW');
   elements.output.textContent = formatNumber(values.heatOutput, 2, 'kW');

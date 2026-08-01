@@ -9,7 +9,7 @@
     "singular": true,
     "filter": {
       "class": "heatpump",
-      "capabilities": "pump_active,measure_temperature"
+      "capabilities": "pump_active"
     }
   },
   "settings": [],

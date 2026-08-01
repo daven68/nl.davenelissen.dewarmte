@@ -11,7 +11,8 @@
   },
   "device": {
     "session_missing": "The DeWarmte session is missing. Pair the device again.",
-    "connection_failed": "Unable to connect to DeWarmte."
+    "connection_failed": "Unable to connect to DeWarmte.",
+    "disconnected": "The DeWarmte device is offline."
   },
   "settings": {
     "diagnostics": {
@@ -39,6 +40,8 @@
       "supply": "Supply",
       "return": "Return",
       "target": "Target",
+      "boilerTop": "Boiler top",
+      "boilerBottom": "Boiler bottom",
       "electric": "Electric",
       "heatInput": "Heat input",
       "heatOutput": "Heat output",
