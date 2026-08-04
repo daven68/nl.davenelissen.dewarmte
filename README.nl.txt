@@ -1,7 +1,9 @@
-Monitor je DeWarmte-warmtepomp met Homey. Bekijk de bedrijfsstatus, aanvoer-, retour- en doeltemperatuur, het elektrische vermogen, de opgenomen en afgegeven warmte, het waterdebiet, de warmtevraag van de thermostaat, ondersteuning door de cv-ketel en de algemene storingsstatus.
+Monitor je DeWarmte-warmtepomp of warmtepompboiler met Homey. De beschikbare gegevens worden afgestemd op het aangesloten model.
 
-Gebruik Flow om te reageren wanneer de warmtepomp, thermostaat of cv-ketel van status verandert. Metingen zijn beschikbaar in Homey Insights.
+Voor Pomp AO toont de app onder andere de bedrijfsstatus, aanvoer-, retour- en doeltemperatuur, het elektrische vermogen, de opgenomen en afgegeven warmte, het waterdebiet, de warmtevraag van de thermostaat, ondersteuning door de cv-ketel en de algemene storingsstatus.
 
-De dashboardwidget brengt de belangrijkste metingen en statussen overzichtelijk bij elkaar.
+Voor Pomp T toont de app de bedrijfsstatus, de bovenste en onderste boilertemperatuur, het elektrische vermogen, de opgenomen en afgegeven warmte en de algemene storingsstatus.
 
-De app is volledig read-only en is getest met een DeWarmte pompAO. Andere DeWarmte-warmtepompmodellen zijn nog niet getest. De app wordt stap voor stap uitgebreid met meer inzichten, Flow-mogelijkheden en aanvullende functionaliteit.
+Gebruik Flow om te reageren op statuswijzigingen. Metingen zijn beschikbaar in Homey Insights. De dashboardwidget brengt de belangrijkste metingen en statussen overzichtelijk bij elkaar en past zich aan het aangesloten model aan.
+
+De app is volledig read-only en is getest met DeWarmte Pomp AO en Pomp T. Andere DeWarmte-modellen zijn nog niet getest. De app wordt stap voor stap uitgebreid met meer energie-inzichten, Flow-mogelijkheden en aanvullende functionaliteit.
