@@ -1,4 +1,8 @@
 {
+  "1.2.4": {
+    "en": "Added tested read-only Pomp T support with top and bottom boiler temperatures, model-specific capabilities and dashboard widget data.",
+    "nl": "Geteste read-only ondersteuning voor Pomp T toegevoegd met bovenste en onderste boilertemperatuur, modelspecifieke apparaatgegevens en dashboardwidgetdata."
+  },
   "1.2.3": {
     "en": "Added Pomp T boiler temperature Insights and updated the app description for tested Pomp AO and Pomp T support.",
     "nl": "Insights voor de Pomp T-boilertemperaturen toegevoegd en de appbeschrijving bijgewerkt voor geteste ondersteuning van Pomp AO en Pomp T."
