@@ -13,7 +13,7 @@ module.exports = {
     }));
   },
 
-  async getDiagnosticReport({ homey, params }) {
+  async getDiagnosticReport({ homey, params, query }) {
     const device = getDriver(homey).getDevices().find((item) => {
       return item.getId() === params.deviceId;
     });
@@ -22,6 +22,11 @@ module.exports = {
       throw new Error('Selected DeWarmte device was not found');
     }
 
-    return device.getDiagnosticReport();
+    const allowedContexts = ['normal', 'boost-on', 'boost-off'];
+    const captureContext = allowedContexts.includes(query?.context)
+      ? query.context
+      : 'normal';
+
+    return device.getDiagnosticReport(captureContext);
   },
 };

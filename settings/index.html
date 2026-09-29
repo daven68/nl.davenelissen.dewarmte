@@ -16,6 +16,13 @@
     </header>
 
     <main>
+      <div class="privacy-note">
+        <strong data-i18n="settings.diagnostics.boostInstructionsTitle">Pomp T boost test</strong>
+        <p data-i18n="settings.diagnostics.boostInstructionsText">
+          Create three reports: during normal operation, while boost is active and after boost has been switched off again. Select the matching test situation for each report.
+        </p>
+      </div>
+
       <fieldset class="homey-form-fieldset">
         <legend class="homey-form-legend" data-i18n="settings.diagnostics.deviceLegend">
           Heat pump
@@ -25,6 +32,16 @@
             Device
           </label>
           <select class="homey-form-select" id="device"></select>
+        </div>
+        <div class="homey-form-group">
+          <label class="homey-form-label" for="context" data-i18n="settings.diagnostics.contextLabel">
+            Test situation
+          </label>
+          <select class="homey-form-select" id="context">
+            <option value="normal" data-i18n="settings.diagnostics.contextNormal">Normal operation</option>
+            <option value="boost-on" data-i18n="settings.diagnostics.contextBoostOn">Boost active</option>
+            <option value="boost-off" data-i18n="settings.diagnostics.contextBoostOff">Boost switched off</option>
+          </select>
         </div>
         <button class="homey-button-primary-full" id="load" type="button" data-i18n="settings.diagnostics.load">
           Create diagnostic report

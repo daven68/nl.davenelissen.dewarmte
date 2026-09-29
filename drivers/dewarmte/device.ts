@@ -34,6 +34,7 @@ const SPACE_HEATING_STATUS_FIELDS = [
 const POMP_T_STATUS_FIELDS = [
   'top_boiler_temp',
   'bottom_boiler_temp',
+  'is_element_on',
   'fault_code',
 ];
 
@@ -118,6 +119,36 @@ function getValueType(value: unknown): string {
   }
 
   return typeof value;
+}
+
+function getDiagnosticValueTypes(
+  value: Record<string, unknown>,
+): Record<string, string> {
+  return Object.entries(value).reduce<Record<string, string>>(
+    (result, [key, nestedValue]) => {
+      result[key] = getValueType(nestedValue);
+      return result;
+    },
+    {},
+  );
+}
+
+function getDiagnosticError(error: unknown): Record<string, unknown> {
+  if (axios.isAxiosError(error)) {
+    return {
+      type: 'api-error',
+      status: error.response?.status || null,
+      code: error.code || null,
+      message: sanitizeDiagnosticString(error.message),
+    };
+  }
+
+  return {
+    type: 'unknown-error',
+    message: error instanceof Error
+      ? sanitizeDiagnosticString(error.message)
+      : 'Unknown error',
+  };
 }
 
 function normalizeProductType(productType: unknown): string {
@@ -298,8 +329,19 @@ class DeWarmteDevice extends Homey.Device {
     }
   }
 
-  async getDiagnosticReport(): Promise<Record<string, unknown>> {
+  async getDiagnosticReport(
+    captureContext = 'normal',
+  ): Promise<Record<string, unknown>> {
     const product = await this.getCurrentProductWithSessionRetry();
+    let rawSettings: unknown = null;
+    let settingsError: Record<string, unknown> | null = null;
+
+    try {
+      rawSettings = await this.getOperationSettingsWithSessionRetry();
+    } catch (error) {
+      settingsError = getDiagnosticError(error);
+    }
+
     const rawStatus: unknown = product.status;
     const status: Record<string, unknown> = rawStatus
       && typeof rawStatus === 'object'
@@ -323,34 +365,47 @@ class DeWarmteDevice extends Homey.Device {
       },
       {},
     );
+    const settings: Record<string, unknown> = rawSettings
+      && typeof rawSettings === 'object'
+      && !Array.isArray(rawSettings)
+      ? rawSettings as Record<string, unknown>
+      : {};
 
     return {
-      diagnosticVersion: 1,
+      diagnosticVersion: 2,
+      captureContext,
       generatedAt: new Date().toISOString(),
       appVersion: Homey.manifest.version,
       productType,
       available: this.getAvailable(),
       apiStatusContainerType: getValueType(rawStatus),
       apiStatus: sanitizeDiagnosticValue(status),
-      apiStatusTypes: statusEntries.reduce<Record<string, string>>(
-        (result, [key, value]) => {
-          result[key] = getValueType(value);
-          return result;
-        },
-        {},
-      ),
+      apiStatusTypes: getDiagnosticValueTypes(status),
       missingExpectedStatusFields: expectedStatusFields.filter((key) => {
         return !statusKeys.includes(key);
       }),
       nullStatusFields: statusEntries
         .filter(([, value]) => value === null || value === undefined)
         .map(([key]) => key),
+      apiSettingsContainerType: getValueType(rawSettings),
+      apiSettings: sanitizeDiagnosticValue(rawSettings),
+      apiSettingsTypes: getDiagnosticValueTypes(settings),
+      apiSettingsError: settingsError,
+      productFeatures: {
+        coolingSupported: product.cooling === true,
+        relatedPompAoPresent: Boolean(product.related_ao),
+        elementStatusReported: Object.prototype.hasOwnProperty.call(
+          status,
+          'is_element_on',
+        ),
+      },
       homeyCapabilities: capabilities,
       privacy: {
         productIdIncluded: false,
         deviceIdIncluded: false,
         deviceNameIncluded: false,
         credentialsIncluded: false,
+        settingsSanitized: true,
       },
     };
   }
@@ -365,6 +420,29 @@ class DeWarmteDevice extends Homey.Device {
 
       await this.refreshSession();
       return this.getCurrentProduct();
+    }
+  }
+
+  private async getOperationSettingsWithSessionRetry(): Promise<unknown> {
+    if (!this.products) {
+      throw new Error('DeWarmte product service has not been initialized');
+    }
+
+    const productId = this.getSetting('productId');
+
+    if (typeof productId !== 'string' || !productId) {
+      throw new Error('DeWarmte productId setting is missing');
+    }
+
+    try {
+      return await this.products.getOperationSettings(productId);
+    } catch (err) {
+      if (!axios.isAxiosError(err) || err.response?.status !== 401) {
+        throw err;
+      }
+
+      await this.refreshSession();
+      return this.products.getOperationSettings(productId);
     }
   }
 

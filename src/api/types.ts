@@ -13,6 +13,7 @@ export interface ProductStatus {
   target_temperature?: number;
   top_boiler_temp?: number;
   bottom_boiler_temp?: number;
+  is_element_on?: boolean;
   fault_code?: number | string | null;
   electric_backup_usage?: number;
   errors?: string[] | null;

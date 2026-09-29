@@ -1,4 +1,8 @@
 {
+  "1.2.5": {
+    "en": "Improved the dashboard widget on compact displays and extended privacy-friendly diagnostics for Pomp T boost research.",
+    "nl": "De dashboardwidget op compacte schermen verbeterd en de privacyvriendelijke diagnostiek uitgebreid voor onderzoek naar Pomp T-boost."
+  },
   "1.2.4": {
     "en": "Added tested read-only Pomp T support with top and bottom boiler temperatures, model-specific capabilities and dashboard widget data.",
     "nl": "Geteste read-only ondersteuning voor Pomp T toegevoegd met bovenste en onderste boilertemperatuur, modelspecifieke apparaatgegevens en dashboardwidgetdata."

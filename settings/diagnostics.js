@@ -5,6 +5,7 @@ let currentReport;
 
 const elements = {
   device: document.getElementById('device'),
+  context: document.getElementById('context'),
   load: document.getElementById('load'),
   reportSection: document.getElementById('report-section'),
   report: document.getElementById('report'),
@@ -37,6 +38,7 @@ function showMessage(message, isError = false) {
 
 function setLoading(loading) {
   elements.device.disabled = loading;
+  elements.context.disabled = loading;
   elements.load.disabled = loading;
   elements.load.textContent = loading ? translate('loading') : translate('load');
 }
@@ -72,7 +74,8 @@ async function createReport() {
   try {
     currentReport = await callApi(
       'GET',
-      `/diagnostics/${encodeURIComponent(elements.device.value)}`,
+      `/diagnostics/${encodeURIComponent(elements.device.value)}`
+        + `?context=${encodeURIComponent(elements.context.value)}`,
     );
     elements.report.textContent = JSON.stringify(currentReport, null, 2);
     elements.reportSection.hidden = false;
@@ -117,6 +120,9 @@ function downloadReport() {
   const model = String(currentReport.productType || 'heat-pump')
     .toLowerCase()
     .replace(/[^a-z0-9]+/g, '-');
+  const context = String(currentReport.captureContext || 'normal')
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, '-');
   const blob = new Blob(
     [JSON.stringify(currentReport, null, 2)],
     { type: 'application/json' },
@@ -124,7 +130,7 @@ function downloadReport() {
   const url = URL.createObjectURL(blob);
   const link = document.createElement('a');
   link.href = url;
-  link.download = `dewarmte-diagnostics-${model}.json`;
+  link.download = `dewarmte-diagnostics-${model}-${context}.json`;
   link.click();
   URL.revokeObjectURL(url);
   showMessage(translate('downloaded'));

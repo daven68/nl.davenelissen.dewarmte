@@ -10,6 +10,8 @@ html,
 body {
   margin: 0;
   min-height: 100%;
+  text-size-adjust: 100%;
+  -webkit-text-size-adjust: 100%;
 }
 
 body.homey-widget {
@@ -74,6 +76,7 @@ body.homey-widget {
 .temperatures article,
 .metrics div {
   flex: 1;
+  min-width: 0;
   border-radius: var(--homey-border-radius-default);
   padding: var(--homey-su-3);
   border: 1px solid var(--dewarmte-border);
@@ -92,16 +95,46 @@ body.homey-widget {
 
 .temperatures strong {
   font-size: 24px;
+  white-space: nowrap;
 }
 
 .metrics strong {
   font-size: 15px;
+  white-space: nowrap;
 }
 
 .error {
   margin: 0;
   color: var(--homey-color-red);
   font-size: 13px;
+}
+
+@media (max-height: 380px) {
+  .widget {
+    gap: var(--homey-su-2);
+  }
+
+  .status-overview {
+    gap: 6px var(--homey-su-2);
+  }
+
+  .status-overview span {
+    padding: 3px 8px;
+  }
+
+  .temperatures article,
+  .metrics div {
+    padding: var(--homey-su-2);
+  }
+
+  .temperatures span,
+  .metrics span {
+    margin-bottom: 2px;
+  }
+
+  .temperatures strong {
+    font-size: 21px;
+  }
 }
 
 @media (prefers-color-scheme: dark) {
