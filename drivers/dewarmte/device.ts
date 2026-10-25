@@ -1,7 +1,7 @@
 'use strict';
 
 import type { HeatCurve } from '../../src/domain/HeatCurve';
-import type { Product } from '../../src/api/types';
+import type { Product, TopBarStatus } from '../../src/api/types';
 
 const Homey = require('homey');
 const axios: typeof import('axios') = require('axios');
@@ -67,6 +67,7 @@ function sanitizeDiagnosticString(value: string): string {
   return value
     .replace(/[\w.+-]+@[\w.-]+\.[a-z]{2,}/gi, '[redacted-email]')
     .replace(/\b[0-9a-f]{8}-[0-9a-f-]{27,}\b/gi, '[redacted-uuid]')
+    .replace(/\beyJ[a-z0-9_-]*\.[a-z0-9_-]+\.[a-z0-9_-]+\b/gi, '[redacted-token]')
     .replace(/\b(?:bearer\s+)?[a-z0-9_-]{40,}\b/gi, '[redacted-token]');
 }
 
@@ -151,6 +152,24 @@ function getDiagnosticError(error: unknown): Record<string, unknown> {
   };
 }
 
+function getSafeErrorSummary(error: unknown): string {
+  if (axios.isAxiosError(error)) {
+    const status = error.response?.status ?? 'unknown';
+    const code = typeof error.code === 'string'
+      ? error.code.replace(/[^A-Z0-9_-]/gi, '').slice(0, 40)
+      : 'unknown';
+
+    return `API error (status=${status}, code=${code || 'unknown'})`;
+  }
+
+  if (error instanceof Error) {
+    const errorName = error.name.replace(/[^A-Z0-9_-]/gi, '').slice(0, 40);
+    return `${errorName || 'Error'} occurred`;
+  }
+
+  return 'Unknown error occurred';
+}
+
 function normalizeProductType(productType: unknown): string {
   return String(productType || '')
     .toUpperCase()
@@ -208,7 +227,9 @@ class DeWarmteDevice extends Homey.Device {
       await this.poll();
       this.startPolling();
     } catch (err) {
-      this.error('Failed to initialize DeWarmte polling', err);
+      this.error(
+        `Failed to initialize DeWarmte polling: ${getSafeErrorSummary(err)}`,
+      );
       await this.setUnavailable(this.homey.__('device.connection_failed'));
     }
   }
@@ -227,7 +248,9 @@ class DeWarmteDevice extends Homey.Device {
 
     this.pollTimer = this.homey.setInterval(() => {
       this.poll().catch(async (err) => {
-        this.error('Failed to poll DeWarmte product status', err);
+        this.error(
+          `Failed to poll DeWarmte product status: ${getSafeErrorSummary(err)}`,
+        );
         await this.setUnavailable(this.homey.__('device.connection_failed'));
       });
     }, 30 * 1000);
@@ -332,6 +355,7 @@ class DeWarmteDevice extends Homey.Device {
   async getDiagnosticReport(
     captureContext = 'normal',
   ): Promise<Record<string, unknown>> {
+    this.log('Creating privacy-safe diagnostic report');
     const product = await this.getCurrentProductWithSessionRetry();
     let rawSettings: unknown = null;
     let settingsError: Record<string, unknown> | null = null;
@@ -339,6 +363,9 @@ class DeWarmteDevice extends Homey.Device {
     try {
       rawSettings = await this.getOperationSettingsWithSessionRetry();
     } catch (error) {
+      this.error(
+        `Diagnostic settings unavailable: ${getSafeErrorSummary(error)}`,
+      );
       settingsError = getDiagnosticError(error);
     }
 
@@ -371,7 +398,7 @@ class DeWarmteDevice extends Homey.Device {
       ? rawSettings as Record<string, unknown>
       : {};
 
-    return {
+    const report = {
       diagnosticVersion: 2,
       captureContext,
       generatedAt: new Date().toISOString(),
@@ -408,6 +435,9 @@ class DeWarmteDevice extends Homey.Device {
         settingsSanitized: true,
       },
     };
+
+    this.log('Privacy-safe diagnostic report created');
+    return report;
   }
 
   private async getCurrentProductWithSessionRetry(): Promise<Product> {
@@ -443,6 +473,23 @@ class DeWarmteDevice extends Homey.Device {
 
       await this.refreshSession();
       return this.products.getOperationSettings(productId);
+    }
+  }
+
+  private async getTopBarStatusWithSessionRetry(): Promise<TopBarStatus> {
+    if (!this.products) {
+      throw new Error('DeWarmte product service has not been initialized');
+    }
+
+    try {
+      return await this.products.getTopBarStatus();
+    } catch (err) {
+      if (!axios.isAxiosError(err) || err.response?.status !== 401) {
+        throw err;
+      }
+
+      await this.refreshSession();
+      return this.products.getTopBarStatus();
     }
   }
 
@@ -482,12 +529,85 @@ class DeWarmteDevice extends Homey.Device {
     await this.setCapabilityValue(capability, value);
   }
 
+  private async triggerFlowCard(cardId: string): Promise<void> {
+    try {
+      await this.homey.flow.getDeviceTriggerCard(cardId).trigger(this);
+    } catch (error) {
+      this.error(`Failed to trigger Flow card ${cardId}: ${getSafeErrorSummary(error)}`);
+    }
+  }
+
+  private async triggerFlowCardOnChange(
+    cardId: string,
+    previousValue: unknown,
+    currentValue: unknown,
+  ): Promise<void> {
+    if (
+      previousValue === null
+      || previousValue === undefined
+      || currentValue === null
+      || currentValue === undefined
+      || Object.is(previousValue, currentValue)
+    ) {
+      return;
+    }
+
+    await this.triggerFlowCard(cardId);
+  }
+
+  private async triggerBooleanFlowCardOnChange(
+    previousValue: unknown,
+    currentValue: unknown,
+    trueCardId: string,
+    falseCardId: string,
+  ): Promise<void> {
+    if (
+      typeof previousValue !== 'boolean'
+      || typeof currentValue !== 'boolean'
+      || previousValue === currentValue
+    ) {
+      return;
+    }
+
+    await this.triggerFlowCard(currentValue ? trueCardId : falseCardId);
+  }
+
   private async updateCapabilities(): Promise<boolean> {
     this.log('refreshDevice() called');
 
     const product = await this.getCurrentProduct();
+    const pompT = isPompT(product.type || this.getSetting('model'));
+    let topBarStatus: TopBarStatus | null = null;
 
-    this.log(`Product received: ${product.id}`);
+    if (!pompT) {
+      try {
+        topBarStatus = await this.getTopBarStatusWithSessionRetry();
+      } catch (error) {
+        this.error(
+          `Top bar status unavailable: ${getSafeErrorSummary(error)}`,
+        );
+      }
+    }
+
+    const currentGasBoiler = typeof topBarStatus?.is_gas_boiler_on === 'boolean'
+      ? topBarStatus.is_gas_boiler_on
+      : product.status.gas_boiler;
+    const currentThermostat = typeof topBarStatus?.is_thermostat_on === 'boolean'
+      ? topBarStatus.is_thermostat_on
+      : product.status.thermostat;
+    const previousPumpState = this.getCapabilityValue('pump_state');
+    const previousTargetTemperature = this.hasCapability('measure_target_temperature')
+      ? this.getCapabilityValue('measure_target_temperature')
+      : null;
+    const previousGasBoiler = this.hasCapability('gas_boiler_active')
+      ? this.getCapabilityValue('gas_boiler_active')
+      : null;
+    const previousThermostat = this.hasCapability('thermostat_active')
+      ? this.getCapabilityValue('thermostat_active')
+      : null;
+    const currentPumpState = product.status.is_on ? 'on' : 'off';
+
+    this.log('Product status received');
 
     const errors = Array.isArray(product.status.errors) ? product.status.errors : [];
     const hasAlarm = hasFault(product.status);
@@ -496,7 +616,10 @@ class DeWarmteDevice extends Homey.Device {
       `Status updated: actual=${product.status.actual_temperature}, `
       + `target=${product.status.target_temperature}, `
       + `fault=${product.status.fault_code}, `
-      + `errors=${JSON.stringify(errors)}, `
+      + `errorCount=${errors.length}, `
+      + `gasBoiler=${currentGasBoiler}, `
+      + `gasBoilerReported=${product.status.gas_boiler === true}, `
+      + `thermostat=${currentThermostat}, `
       + `hasAlarm=${hasAlarm}`,
     );
 
@@ -510,12 +633,12 @@ class DeWarmteDevice extends Homey.Device {
       this.setCapabilityValueIfPresent('measure_heat_output', product.status.heat_output),
       this.setCapabilityValueIfPresent(
         'pump_state',
-        product.status.is_on ? 'on' : 'off',
+        currentPumpState,
       ),
       this.setCapabilityValueIfPresent('alarm_generic', hasAlarm),
     ];
 
-    if (isPompT(product.type || this.getSetting('model'))) {
+    if (pompT) {
       capabilityUpdates.push(
         this.setCapabilityValueIfPresent(
           'measure_boiler_temperature_top',
@@ -542,7 +665,7 @@ class DeWarmteDevice extends Homey.Device {
         ),
         this.setCapabilityValueIfPresent(
           'gas_boiler_active',
-          product.status.gas_boiler,
+          currentGasBoiler,
         ),
         this.setCapabilityValueIfPresent(
           'measure_water_flow',
@@ -550,12 +673,40 @@ class DeWarmteDevice extends Homey.Device {
         ),
         this.setCapabilityValueIfPresent(
           'thermostat_active',
-          product.status.thermostat,
+          currentThermostat,
         ),
       );
     }
 
     await Promise.all(capabilityUpdates);
+
+    await this.triggerFlowCardOnChange(
+      'pump_state_changed',
+      previousPumpState,
+      currentPumpState,
+    );
+
+    if (!pompT) {
+      await Promise.all([
+        this.triggerFlowCardOnChange(
+          'measure_target_temperature_changed',
+          previousTargetTemperature,
+          product.status.target_temperature,
+        ),
+        this.triggerBooleanFlowCardOnChange(
+          previousGasBoiler,
+          currentGasBoiler,
+          'gas_boiler_active_true',
+          'gas_boiler_active_false',
+        ),
+        this.triggerBooleanFlowCardOnChange(
+          previousThermostat,
+          currentThermostat,
+          'thermostat_active_true',
+          'thermostat_active_false',
+        ),
+      ]);
+    }
 
     this.log('Capabilities updated');
 

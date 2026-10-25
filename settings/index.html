@@ -16,7 +16,7 @@
     </header>
 
     <main>
-      <div class="privacy-note">
+      <div class="privacy-note" id="boost-note" hidden>
         <strong data-i18n="settings.diagnostics.boostInstructionsTitle">Pomp T boost test</strong>
         <p data-i18n="settings.diagnostics.boostInstructionsText">
           Create three reports: during normal operation, while boost is active and after boost has been switched off again. Select the matching test situation for each report.
@@ -27,7 +27,7 @@
         <legend class="homey-form-legend" data-i18n="settings.diagnostics.deviceLegend">
           Heat pump
         </legend>
-        <div class="homey-form-group">
+        <div class="homey-form-group" id="context-group" hidden>
           <label class="homey-form-label" for="device" data-i18n="settings.diagnostics.deviceLabel">
             Device
           </label>

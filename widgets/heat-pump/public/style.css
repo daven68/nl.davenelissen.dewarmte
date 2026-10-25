@@ -6,9 +6,16 @@
   --dewarmte-muted: rgba(17, 31, 48, 0.08);
 }
 
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
 html,
 body {
   margin: 0;
+  height: 100%;
   min-height: 100%;
   text-size-adjust: 100%;
   -webkit-text-size-adjust: 100%;

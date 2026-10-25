@@ -38,6 +38,16 @@ export interface ProductListResponse {
   results: Product[];
 }
 
+export interface TopBarStatus {
+  [key: string]: unknown;
+  thermostat?: boolean;
+  gas_boiler?: boolean;
+  is_thermostat_on?: boolean;
+  is_gas_boiler_on?: boolean;
+  is_element_on?: boolean;
+  outdoor_temperature?: number;
+}
+
 export interface HeatCurveSettings {
   heat_curve_mode: string;
   heating_kind: string;

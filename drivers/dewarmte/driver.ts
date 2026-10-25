@@ -3,6 +3,7 @@
 import type { Product } from '../../src/api/types';
 
 const Homey = require('homey');
+const axios: typeof import('axios') = require('axios');
 
 type PairSession = import('homey/lib/PairSession');
 
@@ -18,6 +19,24 @@ interface LoginData {
 interface TargetSupplyTemperatureConditionArgs {
   device: InstanceType<typeof Homey.Device>;
   temperature: number;
+}
+
+function getSafeErrorSummary(error: unknown): string {
+  if (axios.isAxiosError(error)) {
+    const status = error.response?.status ?? 'unknown';
+    const code = typeof error.code === 'string'
+      ? error.code.replace(/[^A-Z0-9_-]/gi, '').slice(0, 40)
+      : 'unknown';
+
+    return `API error (status=${status}, code=${code || 'unknown'})`;
+  }
+
+  if (error instanceof Error) {
+    const errorName = error.name.replace(/[^A-Z0-9_-]/gi, '').slice(0, 40);
+    return `${errorName || 'Error'} occurred`;
+  }
+
+  return 'Unknown error occurred';
 }
 
 export = class DeWarmteDriver extends Homey.Driver {
@@ -80,8 +99,7 @@ export = class DeWarmteDriver extends Homey.Driver {
 
       } catch (err) {
 
-        this.error('❌ Login failed');
-        this.error(err);
+        this.error(`Login failed: ${getSafeErrorSummary(err)}`);
 
         throw new Error(this.homey.__('pair.login.error'));
 
@@ -125,10 +143,9 @@ export = class DeWarmteDriver extends Homey.Driver {
 
       } catch (err) {
 
-        this.error('Failed to retrieve products');
-        this.error(err);
+        this.error(`Failed to retrieve products: ${getSafeErrorSummary(err)}`);
 
-        throw err;
+        throw new Error(this.homey.__('pair.login.error'));
 
       }
 

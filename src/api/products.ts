@@ -9,6 +9,7 @@ import {
   OperationSettingsResponse,
   Product,
   ProductListResponse,
+  TopBarStatus,
 } from './types';
 
 export class ProductService {
@@ -34,6 +35,13 @@ export class ProductService {
   async getProduct(): Promise<Product> {
     const products = await this.getProducts();
     return products[0];
+  }
+
+  /**
+   * Retourneert de actuele statussen uit de bovenbalk van de officiële app.
+   */
+  async getTopBarStatus(): Promise<TopBarStatus> {
+    return this.client.get<TopBarStatus>('/customer/products/tb-status/');
   }
 
   /**

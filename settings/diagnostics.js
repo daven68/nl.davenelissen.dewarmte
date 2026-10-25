@@ -6,6 +6,8 @@ let currentReport;
 const elements = {
   device: document.getElementById('device'),
   context: document.getElementById('context'),
+  contextGroup: document.getElementById('context-group'),
+  boostNote: document.getElementById('boost-note'),
   load: document.getElementById('load'),
   reportSection: document.getElementById('report-section'),
   report: document.getElementById('report'),
@@ -13,6 +15,26 @@ const elements = {
   download: document.getElementById('download'),
   message: document.getElementById('message'),
 };
+
+function isPompT(model) {
+  const normalizedModel = String(model || '')
+    .toUpperCase()
+    .replace(/[^A-Z0-9]/g, '');
+
+  return normalizedModel === 'PT' || normalizedModel === 'POMPT';
+}
+
+function updateModelSpecificControls() {
+  const selectedOption = elements.device.selectedOptions[0];
+  const showBoostControls = isPompT(selectedOption?.dataset.model);
+
+  elements.boostNote.hidden = !showBoostControls;
+  elements.contextGroup.hidden = !showBoostControls;
+
+  if (!showBoostControls) {
+    elements.context.value = 'normal';
+  }
+}
 
 function translate(key) {
   return settingsHomey.__(`settings.diagnostics.${key}`);
@@ -50,11 +72,14 @@ async function loadDevices() {
   devices.forEach((device) => {
     const option = document.createElement('option');
     option.value = device.id;
+    option.dataset.model = device.model || '';
     option.textContent = device.model
       ? `${device.name} (${device.model})`
       : device.name;
     elements.device.appendChild(option);
   });
+
+  updateModelSpecificControls();
 
   if (devices.length === 0) {
     elements.load.disabled = true;
@@ -138,6 +163,7 @@ function downloadReport() {
 
 window.onHomeyReady = async (Homey) => {
   settingsHomey = Homey;
+  elements.device.addEventListener('change', updateModelSpecificControls);
   elements.load.addEventListener('click', () => {
     createReport().catch(() => undefined);
   });

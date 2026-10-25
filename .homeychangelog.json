@@ -1,4 +1,12 @@
 {
+  "1.2.7": {
+    "en": "Improved gas boiler status and Flow triggers, refined model-specific diagnostics and polished the dashboard widget.",
+    "nl": "De cv-ketelstatus en Flowkaarten verbeterd, de modelspecifieke diagnostiek verfijnd en de dashboardwidget verder afgewerkt."
+  },
+  "1.2.6": {
+    "en": "Fixed the dashboard widget background on phones and compact displays and renamed the widget to Heat Pump.",
+    "nl": "De achtergrond van de dashboardwidget op telefoons en compacte schermen hersteld en de widget hernoemd naar Warmtepomp."
+  },
   "1.2.5": {
     "en": "Improved the dashboard widget on compact displays and extended privacy-friendly diagnostics for Pomp T boost research.",
     "nl": "De dashboardwidget op compacte schermen verbeterd en de privacyvriendelijke diagnostiek uitgebreid voor onderzoek naar Pomp T-boost."
