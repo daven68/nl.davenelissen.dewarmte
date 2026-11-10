@@ -37,6 +37,26 @@ function translate(key) {
   return widgetHomey.__(`widget.heatPump.${key}`);
 }
 
+function renderPumpState(values) {
+  const statusTranslations = {
+    off: 'heatPumpOff',
+    standby: 'heatPumpStandby',
+    heating: 'heatPumpHeating',
+    defrosting: 'heatPumpDefrosting',
+  };
+  const translationKey = statusTranslations[values.pumpState];
+  let statusText = values.active
+    ? translate('heatPumpRunning')
+    : translate('heatPumpOff');
+
+  if (translationKey) {
+    statusText = translate(translationKey);
+  }
+
+  elements.pump.textContent = statusText;
+  elements.pump.classList.toggle('active', values.active === true);
+}
+
 function translatePage() {
   document.querySelectorAll('[data-i18n]').forEach((element) => {
     const key = element.getAttribute('data-i18n');
@@ -65,12 +85,7 @@ function render(status) {
     ? translate('deviceUnavailable')
     : '';
 
-  setIndicator(
-    elements.pump,
-    values.active,
-    translate('heatPumpRunning'),
-    translate('heatPumpOff'),
-  );
+  renderPumpState(values);
   setIndicator(
     elements.thermostat,
     values.thermostat,

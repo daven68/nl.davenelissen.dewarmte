@@ -7,3 +7,5 @@ Voor Pomp T toont de app de bedrijfsstatus, de bovenste en onderste boilertemper
 Gebruik Flow om te reageren op statuswijzigingen. Metingen zijn beschikbaar in Homey Insights. De dashboardwidget brengt de belangrijkste metingen en statussen overzichtelijk bij elkaar en past zich aan het aangesloten model aan.
 
 De app is volledig read-only en is getest met DeWarmte Pomp AO en Pomp T. Andere DeWarmte-modellen zijn nog niet getest. De app wordt stap voor stap uitgebreid met meer energie-inzichten, Flow-mogelijkheden en aanvullende functionaliteit.
+
+Deze app is een onafhankelijke community-app en is niet ontwikkeld, goedgekeurd of ondersteund door DeWarmte.

@@ -7,3 +7,5 @@ For Pomp T, the app shows operating status, top and bottom boiler temperatures, 
 Use Flow to respond to status changes. Measurements are available in Homey Insights. The dashboard widget brings the most important measurements and statuses together at a glance and adapts to the connected model.
 
 The app is completely read-only and has been tested with DeWarmte Pomp AO and Pomp T. Other DeWarmte models have not yet been tested. The app will be expanded step by step with more energy insights, Flow options and additional functionality.
+
+This is an independent community app and is not developed, approved or supported by DeWarmte.

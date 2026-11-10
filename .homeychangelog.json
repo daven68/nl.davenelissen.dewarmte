@@ -1,4 +1,8 @@
 {
+  "1.2.8": {
+    "en": "Added detailed heat pump statuses. The dashboard widget now shows Heating, Standby, Defrosting and Off. Also clarified that this is an independent community app.",
+    "nl": "Uitgebreide warmtepompstatussen toegevoegd. De dashboardwidget toont nu Verwarmen, Stand-by, Ontdooicyclus en Uit. Ook is verduidelijkt dat dit een onafhankelijke community-app is."
+  },
   "1.2.7": {
     "en": "Improved gas boiler status and Flow triggers, refined model-specific diagnostics and polished the dashboard widget.",
     "nl": "De cv-ketelstatus en Flowkaarten verbeterd, de modelspecifieke diagnostiek verfijnd en de dashboardwidget verder afgewerkt."

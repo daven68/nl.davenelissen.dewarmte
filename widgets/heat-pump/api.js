@@ -26,6 +26,7 @@ module.exports = {
       productType: device.getSetting('model') || null,
       values: {
         active: getCapabilityValue('pump_active'),
+        pumpState: getCapabilityValue('pump_state'),
         thermostat: getCapabilityValue('thermostat_active'),
         gasBoiler: getCapabilityValue('gas_boiler_active'),
         alarm: getCapabilityValue('alarm_generic'),

@@ -605,7 +605,20 @@ class DeWarmteDevice extends Homey.Device {
     const previousThermostat = this.hasCapability('thermostat_active')
       ? this.getCapabilityValue('thermostat_active')
       : null;
-    const currentPumpState = product.status.is_on ? 'on' : 'off';
+    const reportedPumpState = typeof product.status.state === 'string'
+      ? product.status.state.trim().toLowerCase()
+      : '';
+    const supportedPumpStates = new Set([
+      'off',
+      'standby',
+      'heating',
+      'defrosting',
+    ]);
+    let currentPumpState = product.status.is_on ? 'on' : 'off';
+
+    if (supportedPumpStates.has(reportedPumpState)) {
+      currentPumpState = reportedPumpState;
+    }
 
     this.log('Product status received');
 

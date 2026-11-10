@@ -2,6 +2,7 @@ export interface ProductStatus {
   [key: string]: unknown;
   time: string;
   is_on: boolean;
+  state?: string;
   heat_input: number;
   heat_output: number;
   electricity_consumption: number;

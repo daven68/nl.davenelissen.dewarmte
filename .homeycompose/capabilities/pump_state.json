@@ -21,6 +21,27 @@
         "en": "Off",
         "nl": "Uit"
       }
+    },
+    {
+      "id": "standby",
+      "title": {
+        "en": "Standby",
+        "nl": "Stand-by"
+      }
+    },
+    {
+      "id": "heating",
+      "title": {
+        "en": "Heating",
+        "nl": "Verwarmen"
+      }
+    },
+    {
+      "id": "defrosting",
+      "title": {
+        "en": "Defrosting",
+        "nl": "Ontdooicyclus"
+      }
     }
   ]
 }

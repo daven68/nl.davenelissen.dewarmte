@@ -47,7 +47,7 @@ export = class DeWarmteDriver extends Homey.Driver {
     this.homey.flow
       .getConditionCard('pump_is_on')
       .registerRunListener(({ device }: { device: InstanceType<typeof Homey.Device> }) => {
-        return device.getCapabilityValue('pump_state') === 'on';
+        return device.getCapabilityValue('pump_active') === true;
       });
 
     this.homey.flow
