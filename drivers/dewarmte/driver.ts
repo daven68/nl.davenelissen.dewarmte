@@ -21,6 +21,11 @@ interface TargetSupplyTemperatureConditionArgs {
   temperature: number;
 }
 
+interface PumpStateConditionArgs {
+  device: InstanceType<typeof Homey.Device>;
+  state: string;
+}
+
 function getSafeErrorSummary(error: unknown): string {
   if (axios.isAxiosError(error)) {
     const status = error.response?.status ?? 'unknown';
@@ -43,6 +48,12 @@ export = class DeWarmteDriver extends Homey.Driver {
 
   async onInit() {
     this.log('DeWarmte Driver initialized');
+
+    this.homey.flow
+      .getConditionCard('pump_state_is')
+      .registerRunListener(({ device, state }: PumpStateConditionArgs) => {
+        return device.getCapabilityValue('pump_state') === state;
+      });
 
     this.homey.flow
       .getConditionCard('pump_is_on')

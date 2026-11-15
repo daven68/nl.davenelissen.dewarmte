@@ -1,4 +1,8 @@
 {
+  "1.2.9": {
+    "en": "Expanded Flow with separate Heating, Standby, Defrosting and Off statuses. Improved Standby detection and fixed duplicate Flow notifications.",
+    "nl": "Flow uitgebreid met afzonderlijke statussen voor Verwarmen, Stand-by, Ontdooicyclus en Uit. De herkenning van Stand-by is verbeterd en dubbele Flowmeldingen zijn verholpen."
+  },
   "1.2.8": {
     "en": "Added detailed heat pump statuses. The dashboard widget now shows Heating, Standby, Defrosting and Off. Also clarified that this is an independent community app.",
     "nl": "Uitgebreide warmtepompstatussen toegevoegd. De dashboardwidget toont nu Verwarmen, Stand-by, Ontdooicyclus en Uit. Ook is verduidelijkt dat dit een onafhankelijke community-app is."

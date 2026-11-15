@@ -200,6 +200,7 @@ function hasFault(status: Product['status']): boolean {
 
 class DeWarmteDevice extends Homey.Device {
   private pollTimer?: NodeJS.Timeout;
+  private pollInProgress = false;
   private client?: InstanceType<typeof DeWarmteClient>;
   private auth?: InstanceType<typeof AuthService>;
   private products?: InstanceType<typeof ProductService>;
@@ -293,23 +294,33 @@ class DeWarmteDevice extends Homey.Device {
   }
 
   private async poll(): Promise<void> {
+    if (this.pollInProgress) {
+      this.log('Skipping overlapping product status poll');
+      return;
+    }
+
+    this.pollInProgress = true;
     let isConnected: boolean;
 
     try {
-      isConnected = await this.updateCapabilities();
-    } catch (err) {
-      if (!axios.isAxiosError(err) || err.response?.status !== 401) {
-        throw err;
+      try {
+        isConnected = await this.updateCapabilities();
+      } catch (err) {
+        if (!axios.isAxiosError(err) || err.response?.status !== 401) {
+          throw err;
+        }
+
+        await this.refreshSession();
+        isConnected = await this.updateCapabilities();
       }
 
-      await this.refreshSession();
-      isConnected = await this.updateCapabilities();
-    }
-
-    if (isConnected) {
-      await this.setAvailable();
-    } else {
-      await this.setUnavailable(this.homey.__('device.disconnected'));
+      if (isConnected) {
+        await this.setAvailable();
+      } else {
+        await this.setUnavailable(this.homey.__('device.disconnected'));
+      }
+    } finally {
+      this.pollInProgress = false;
     }
   }
 
@@ -537,39 +548,29 @@ class DeWarmteDevice extends Homey.Device {
     }
   }
 
-  private async triggerFlowCardOnChange(
-    cardId: string,
-    previousValue: unknown,
-    currentValue: unknown,
+  private async triggerPumpStateFlowCards(
+    previousState: unknown,
+    currentState: unknown,
   ): Promise<void> {
     if (
-      previousValue === null
-      || previousValue === undefined
-      || currentValue === null
-      || currentValue === undefined
-      || Object.is(previousValue, currentValue)
+      typeof previousState !== 'string'
+      || typeof currentState !== 'string'
+      || previousState === currentState
     ) {
       return;
     }
 
-    await this.triggerFlowCard(cardId);
-  }
+    const stateTriggerCards: Record<string, string> = {
+      heating: 'pump_state_heating',
+      standby: 'pump_state_standby',
+      defrosting: 'pump_state_defrosting',
+      off: 'pump_state_off',
+    };
+    const stateTriggerCard = stateTriggerCards[currentState];
 
-  private async triggerBooleanFlowCardOnChange(
-    previousValue: unknown,
-    currentValue: unknown,
-    trueCardId: string,
-    falseCardId: string,
-  ): Promise<void> {
-    if (
-      typeof previousValue !== 'boolean'
-      || typeof currentValue !== 'boolean'
-      || previousValue === currentValue
-    ) {
-      return;
+    if (stateTriggerCard) {
+      await this.triggerFlowCard(stateTriggerCard);
     }
-
-    await this.triggerFlowCard(currentValue ? trueCardId : falseCardId);
   }
 
   private async updateCapabilities(): Promise<boolean> {
@@ -596,18 +597,10 @@ class DeWarmteDevice extends Homey.Device {
       ? topBarStatus.is_thermostat_on
       : product.status.thermostat;
     const previousPumpState = this.getCapabilityValue('pump_state');
-    const previousTargetTemperature = this.hasCapability('measure_target_temperature')
-      ? this.getCapabilityValue('measure_target_temperature')
-      : null;
-    const previousGasBoiler = this.hasCapability('gas_boiler_active')
-      ? this.getCapabilityValue('gas_boiler_active')
-      : null;
-    const previousThermostat = this.hasCapability('thermostat_active')
-      ? this.getCapabilityValue('thermostat_active')
-      : null;
     const reportedPumpState = typeof product.status.state === 'string'
       ? product.status.state.trim().toLowerCase()
       : '';
+    const normalizedPumpState = reportedPumpState.replace(/[\s_-]+/g, '');
     const supportedPumpStates = new Set([
       'off',
       'standby',
@@ -616,8 +609,8 @@ class DeWarmteDevice extends Homey.Device {
     ]);
     let currentPumpState = product.status.is_on ? 'on' : 'off';
 
-    if (supportedPumpStates.has(reportedPumpState)) {
-      currentPumpState = reportedPumpState;
+    if (supportedPumpStates.has(normalizedPumpState)) {
+      currentPumpState = normalizedPumpState;
     }
 
     this.log('Product status received');
@@ -628,6 +621,8 @@ class DeWarmteDevice extends Homey.Device {
     this.log(
       `Status updated: actual=${product.status.actual_temperature}, `
       + `target=${product.status.target_temperature}, `
+      + `state=${reportedPumpState || 'missing'}, `
+      + `mappedState=${currentPumpState}, `
       + `fault=${product.status.fault_code}, `
       + `errorCount=${errors.length}, `
       + `gasBoiler=${currentGasBoiler}, `
@@ -693,33 +688,10 @@ class DeWarmteDevice extends Homey.Device {
 
     await Promise.all(capabilityUpdates);
 
-    await this.triggerFlowCardOnChange(
-      'pump_state_changed',
+    await this.triggerPumpStateFlowCards(
       previousPumpState,
       currentPumpState,
     );
-
-    if (!pompT) {
-      await Promise.all([
-        this.triggerFlowCardOnChange(
-          'measure_target_temperature_changed',
-          previousTargetTemperature,
-          product.status.target_temperature,
-        ),
-        this.triggerBooleanFlowCardOnChange(
-          previousGasBoiler,
-          currentGasBoiler,
-          'gas_boiler_active_true',
-          'gas_boiler_active_false',
-        ),
-        this.triggerBooleanFlowCardOnChange(
-          previousThermostat,
-          currentThermostat,
-          'thermostat_active_true',
-          'thermostat_active_false',
-        ),
-      ]);
-    }
 
     this.log('Capabilities updated');
 

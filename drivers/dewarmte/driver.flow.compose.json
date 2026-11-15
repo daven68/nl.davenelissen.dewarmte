@@ -8,6 +8,34 @@
       }
     },
     {
+      "id": "pump_state_heating",
+      "title": {
+        "en": "The heat pump started heating",
+        "nl": "De warmtepomp is gaan verwarmen"
+      }
+    },
+    {
+      "id": "pump_state_standby",
+      "title": {
+        "en": "The heat pump entered standby",
+        "nl": "De warmtepomp is naar stand-by gegaan"
+      }
+    },
+    {
+      "id": "pump_state_defrosting",
+      "title": {
+        "en": "The defrosting cycle started",
+        "nl": "De ontdooicyclus is gestart"
+      }
+    },
+    {
+      "id": "pump_state_off",
+      "title": {
+        "en": "The heat pump switched off",
+        "nl": "De warmtepomp is uitgeschakeld"
+      }
+    },
+    {
       "id": "measure_target_temperature_changed",
       "title": {
         "en": "The target supply temperature changed",
@@ -44,6 +72,57 @@
     }
   ],
   "conditions": [
+    {
+      "id": "pump_state_is",
+      "title": {
+        "en": "The heat pump status is a value",
+        "nl": "De warmtepompstatus heeft een waarde"
+      },
+      "titleFormatted": {
+        "en": "The heat pump status is [[state]]",
+        "nl": "De warmtepompstatus is [[state]]"
+      },
+      "args": [
+        {
+          "name": "state",
+          "type": "dropdown",
+          "title": {
+            "en": "Status",
+            "nl": "Status"
+          },
+          "values": [
+            {
+              "id": "heating",
+              "label": {
+                "en": "Heating",
+                "nl": "Verwarmen"
+              }
+            },
+            {
+              "id": "standby",
+              "label": {
+                "en": "Standby",
+                "nl": "Stand-by"
+              }
+            },
+            {
+              "id": "defrosting",
+              "label": {
+                "en": "Defrosting",
+                "nl": "Ontdooicyclus"
+              }
+            },
+            {
+              "id": "off",
+              "label": {
+                "en": "Off",
+                "nl": "Uit"
+              }
+            }
+          ]
+        }
+      ]
+    },
     {
       "id": "pump_is_on",
       "title": {

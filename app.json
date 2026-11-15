@@ -1,7 +1,7 @@
 {
   "_comment": "This file is generated. Please edit .homeycompose/app.json instead.",
   "id": "nl.davenelissen.dewarmte",
-  "version": "1.2.8",
+  "version": "1.2.9",
   "compatibility": ">=12.4.0",
   "sdk": 3,
   "brandColor": "#1273DC",
@@ -71,6 +71,62 @@
         "title": {
           "en": "The heat pump status changed",
           "nl": "De warmtepompstatus is gewijzigd"
+        },
+        "args": [
+          {
+            "type": "device",
+            "name": "device",
+            "filter": "driver_id=dewarmte"
+          }
+        ]
+      },
+      {
+        "id": "pump_state_heating",
+        "title": {
+          "en": "The heat pump started heating",
+          "nl": "De warmtepomp is gaan verwarmen"
+        },
+        "args": [
+          {
+            "type": "device",
+            "name": "device",
+            "filter": "driver_id=dewarmte"
+          }
+        ]
+      },
+      {
+        "id": "pump_state_standby",
+        "title": {
+          "en": "The heat pump entered standby",
+          "nl": "De warmtepomp is naar stand-by gegaan"
+        },
+        "args": [
+          {
+            "type": "device",
+            "name": "device",
+            "filter": "driver_id=dewarmte"
+          }
+        ]
+      },
+      {
+        "id": "pump_state_defrosting",
+        "title": {
+          "en": "The defrosting cycle started",
+          "nl": "De ontdooicyclus is gestart"
+        },
+        "args": [
+          {
+            "type": "device",
+            "name": "device",
+            "filter": "driver_id=dewarmte"
+          }
+        ]
+      },
+      {
+        "id": "pump_state_off",
+        "title": {
+          "en": "The heat pump switched off",
+          "nl": "De warmtepomp is uitgeschakeld"
         },
         "args": [
           {
@@ -152,6 +208,62 @@
       }
     ],
     "conditions": [
+      {
+        "id": "pump_state_is",
+        "title": {
+          "en": "The heat pump status is a value",
+          "nl": "De warmtepompstatus heeft een waarde"
+        },
+        "titleFormatted": {
+          "en": "The heat pump status is [[state]]",
+          "nl": "De warmtepompstatus is [[state]]"
+        },
+        "args": [
+          {
+            "type": "device",
+            "name": "device",
+            "filter": "driver_id=dewarmte"
+          },
+          {
+            "name": "state",
+            "type": "dropdown",
+            "title": {
+              "en": "Status",
+              "nl": "Status"
+            },
+            "values": [
+              {
+                "id": "heating",
+                "label": {
+                  "en": "Heating",
+                  "nl": "Verwarmen"
+                }
+              },
+              {
+                "id": "standby",
+                "label": {
+                  "en": "Standby",
+                  "nl": "Stand-by"
+                }
+              },
+              {
+                "id": "defrosting",
+                "label": {
+                  "en": "Defrosting",
+                  "nl": "Ontdooicyclus"
+                }
+              },
+              {
+                "id": "off",
+                "label": {
+                  "en": "Off",
+                  "nl": "Uit"
+                }
+              }
+            ]
+          }
+        ]
+      },
       {
         "id": "pump_is_on",
         "title": {
