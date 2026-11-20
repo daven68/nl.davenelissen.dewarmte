@@ -65,6 +65,16 @@
         "en": "Energy consumption",
         "nl": "Energieverbruik"
       }
+    },
+    "electric_backup_active": {
+      "titleTrue": {
+        "en": "On",
+        "nl": "Aan"
+      },
+      "titleFalse": {
+        "en": "Off",
+        "nl": "Uit"
+      }
     }
   },
   "images": {

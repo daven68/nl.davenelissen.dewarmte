@@ -1,0 +1,20 @@
+{
+  "type": "boolean",
+  "title": {
+    "en": "Electric backup heater",
+    "nl": "Elektrische bijverwarming"
+  },
+  "getable": true,
+  "setable": false,
+  "uiComponent": "sensor",
+  "uiQuickAction": false,
+  "insights": true,
+  "insightsTitleTrue": {
+    "en": "Electric backup heater on",
+    "nl": "Elektrische bijverwarming aan"
+  },
+  "insightsTitleFalse": {
+    "en": "Electric backup heater off",
+    "nl": "Elektrische bijverwarming uit"
+  }
+}

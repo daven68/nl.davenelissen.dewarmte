@@ -120,6 +120,22 @@
         }
       ],
       "$filter": "capabilities=measure_outdoor_temperature"
+    },
+    {
+      "id": "electric_backup_active_true",
+      "title": {
+        "en": "The electric backup heater turned on",
+        "nl": "De elektrische bijverwarming is aangegaan"
+      },
+      "$filter": "capabilities=electric_backup_active"
+    },
+    {
+      "id": "electric_backup_active_false",
+      "title": {
+        "en": "The electric backup heater turned off",
+        "nl": "De elektrische bijverwarming is uitgegaan"
+      },
+      "$filter": "capabilities=electric_backup_active"
     }
   ],
   "conditions": [
@@ -274,6 +290,14 @@
           "step": 0.1
         }
       ]
+    },
+    {
+      "id": "electric_backup_is_active",
+      "title": {
+        "en": "The electric backup heater !{{is|isn't}} on",
+        "nl": "De elektrische bijverwarming !{{is|is niet}} aan"
+      },
+      "$filter": "capabilities=electric_backup_active"
     }
   ]
 }

@@ -83,6 +83,12 @@ export = class DeWarmteDriver extends Homey.Driver {
       });
 
     this.homey.flow
+      .getConditionCard('electric_backup_is_active')
+      .registerRunListener(({ device }: { device: Homey.Device }) => {
+        return device.getCapabilityValue('electric_backup_active') === true;
+      });
+
+    this.homey.flow
       .getConditionCard('gas_boiler_is_active')
       .registerRunListener(({ device }: { device: Homey.Device }) => {
         return device.getCapabilityValue('gas_boiler_active') === true;

@@ -569,6 +569,30 @@ class DeWarmteDevice extends Homey.Device {
   }
 
   /**
+   * Electric backup heater (element). Not every installation has one, so the
+   * capability is only added the first time the heat pump reports it being
+   * used; installations without an element never see it.
+   */
+  private async updateElectricBackup(status: Product['status']): Promise<void> {
+    const active = status.is_element_on === true
+      || (typeof status.electric_backup_usage === 'number'
+        && status.electric_backup_usage > 0);
+
+    if (!this.hasCapability('electric_backup_active')) {
+      if (!active) {
+        return;
+      }
+
+      this.log('Electric backup heater detected, adding capability');
+      await this.addCapability('electric_backup_active');
+    }
+
+    const previous = this.getCapabilityValue('electric_backup_active');
+    await this.setCapabilityValue('electric_backup_active', active);
+    await this.triggerBooleanFlowCards('electric_backup_active', previous, active);
+  }
+
+  /**
    * COP of today, exactly as the DeWarmte app shows it under Insights > Day.
    * A failure here never makes the device unavailable.
    */
@@ -883,6 +907,7 @@ class DeWarmteDevice extends Homey.Device {
     }
 
     await Promise.all(capabilityUpdates);
+    await this.updateElectricBackup(product.status);
     await this.updateDailyInsights();
 
     await this.triggerPumpStateFlowCards(
