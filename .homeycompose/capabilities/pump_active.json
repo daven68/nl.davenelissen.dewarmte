@@ -4,6 +4,7 @@
     "en": "Heat pump active",
     "nl": "Warmtepomp actief"
   },
+  "icon": "/assets/icons/heat-pump.svg",
   "getable": true,
   "setable": false,
   "uiComponent": null,

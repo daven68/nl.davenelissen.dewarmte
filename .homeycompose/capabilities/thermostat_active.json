@@ -4,6 +4,7 @@
     "en": "Thermostat",
     "nl": "Thermostaat"
   },
+  "icon": "/assets/icons/thermostat.svg",
   "getable": true,
   "setable": false,
   "uiComponent": "sensor",

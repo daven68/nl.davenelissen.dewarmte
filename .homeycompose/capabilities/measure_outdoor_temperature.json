@@ -4,6 +4,7 @@
     "en": "Outdoor temperature",
     "nl": "Buitentemperatuur"
   },
+  "icon": "/assets/icons/outdoor.svg",
   "getable": true,
   "setable": false,
   "uiComponent": "sensor",

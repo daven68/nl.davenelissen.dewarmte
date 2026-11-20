@@ -4,6 +4,7 @@
     "en": "COP today",
     "nl": "COP vandaag"
   },
+  "icon": "/assets/icons/cop.svg",
   "getable": true,
   "setable": false,
   "uiComponent": "sensor",

@@ -4,6 +4,7 @@
     "en": "Heat today",
     "nl": "Warmte vandaag"
   },
+  "icon": "/assets/icons/heat-today.svg",
   "getable": true,
   "setable": false,
   "uiComponent": "sensor",

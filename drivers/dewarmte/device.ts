@@ -266,6 +266,17 @@ function isPompT(productType: unknown): boolean {
   return normalizedType === 'PT' || normalizedType === 'POMPT';
 }
 
+/**
+ * Hot water heat pumps (Pomp T and Heatcycle) report boiler temperatures
+ * instead of space heating values. The Pomp AO and Pomp MP heat the house.
+ */
+function isWaterHeater(productType: unknown): boolean {
+  const normalizedType = normalizeProductType(productType);
+  return isPompT(productType)
+    || normalizedType === 'HC'
+    || normalizedType === 'HEATCYCLE';
+}
+
 function hasFault(status: Product['status']): boolean {
   const errors = Array.isArray(status.errors) ? status.errors : [];
   const faultCode = status.fault_code;
@@ -451,15 +462,15 @@ class DeWarmteDevice extends Homey.Device {
       await this.setClass('heatpump');
     }
 
-    const pompT = isPompT(this.getSetting('model'));
-    const modelCapabilities = pompT
+    const waterHeater = isWaterHeater(this.getSetting('model'));
+    const modelCapabilities = waterHeater
       ? POMP_T_CAPABILITIES
       : SPACE_HEATING_CAPABILITIES;
     const desiredCapabilities = [
       ...COMMON_CAPABILITIES,
       ...modelCapabilities,
     ];
-    const unsupportedCapabilities = pompT
+    const unsupportedCapabilities = waterHeater
       ? SPACE_HEATING_CAPABILITIES
       : POMP_T_CAPABILITIES;
 
@@ -546,7 +557,7 @@ class DeWarmteDevice extends Homey.Device {
     const productType = product.type || this.getSetting('model') || 'unknown';
     const expectedStatusFields = [
       ...COMMON_EXPECTED_STATUS_FIELDS,
-      ...(isPompT(productType)
+      ...(isWaterHeater(productType)
         ? POMP_T_STATUS_FIELDS
         : SPACE_HEATING_STATUS_FIELDS),
     ];
@@ -885,10 +896,12 @@ class DeWarmteDevice extends Homey.Device {
 
   private async updateCapabilities(): Promise<boolean> {
     const product = await this.getCurrentProduct();
-    const pompT = isPompT(product.type || this.getSetting('model'));
+    const productType = product.type || this.getSetting('model');
+    const pompT = isPompT(productType);
+    const waterHeater = isWaterHeater(productType);
     let topBarStatus: TopBarStatus | null = null;
 
-    if (!pompT) {
+    if (!waterHeater) {
       try {
         topBarStatus = await this.getSession().getTopBarStatus();
       } catch (error) {
@@ -960,7 +973,7 @@ class DeWarmteDevice extends Homey.Device {
       this.setCapabilityValueIfPresent('alarm_generic', hasAlarm),
     ];
 
-    if (pompT) {
+    if (waterHeater) {
       capabilityUpdates.push(
         this.setCapabilityValueIfPresent(
           'measure_boiler_temperature_top',
@@ -1013,7 +1026,7 @@ class DeWarmteDevice extends Homey.Device {
       currentPumpState,
     );
 
-    if (pompT) {
+    if (waterHeater) {
       await this.triggerNumberFlowCard(
         'boiler_temperature_top_changed',
         previousBoilerTop,
@@ -1026,7 +1039,7 @@ class DeWarmteDevice extends Homey.Device {
       );
     }
 
-    if (!pompT) {
+    if (!waterHeater) {
       await this.triggerTargetTemperatureFlowCard(
         previousTargetTemperature,
         this.getCapabilityValue('measure_target_temperature'),

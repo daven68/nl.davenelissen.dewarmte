@@ -4,6 +4,7 @@
     "en": "Water flow",
     "nl": "Water flow"
   },
+  "icon": "/assets/icons/flow.svg",
   "getable": true,
   "setable": false,
   "uiComponent": "sensor",

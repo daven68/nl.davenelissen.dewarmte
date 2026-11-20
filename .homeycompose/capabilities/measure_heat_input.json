@@ -4,6 +4,7 @@
     "en": "Heat input",
     "nl": "Opgenomen warmte"
   },
+  "icon": "/assets/icons/heat-input.svg",
   "getable": true,
   "setable": false,
   "uiComponent": "sensor",

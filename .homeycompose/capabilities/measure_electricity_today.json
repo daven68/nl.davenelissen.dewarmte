@@ -4,6 +4,7 @@
     "en": "Electricity today",
     "nl": "Stroom vandaag"
   },
+  "icon": "/assets/icons/electricity.svg",
   "getable": true,
   "setable": false,
   "uiComponent": "sensor",

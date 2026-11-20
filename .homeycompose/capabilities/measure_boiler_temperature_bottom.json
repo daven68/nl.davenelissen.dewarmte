@@ -4,6 +4,7 @@
     "en": "Boiler temperature bottom",
     "nl": "Boilertemperatuur onder"
   },
+  "icon": "/assets/icons/boiler-bottom.svg",
   "getable": true,
   "setable": false,
   "insights": true,

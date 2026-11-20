@@ -4,6 +4,7 @@
     "en": "Heat output",
     "nl": "Afgegeven warmte"
   },
+  "icon": "/assets/icons/heat-output.svg",
   "getable": true,
   "setable": false,
   "uiComponent": "sensor",

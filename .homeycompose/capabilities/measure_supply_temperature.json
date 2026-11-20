@@ -4,6 +4,7 @@
     "en": "Supply temperature",
     "nl": "Aanvoertemperatuur"
   },
+  "icon": "/assets/icons/supply.svg",
   "getable": true,
   "setable": false,
   "uiComponent": "sensor",

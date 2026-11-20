@@ -883,6 +883,7 @@
         "en": "DeWarmte Element",
         "nl": "DeWarmte Element"
       },
+      "icon": "/assets/icons/element.svg",
       "getable": true,
       "setable": false,
       "uiComponent": "sensor",
@@ -903,6 +904,7 @@
         "en": "Gas boiler",
         "nl": "Cv-ketel"
       },
+      "icon": "/assets/icons/flame.svg",
       "getable": true,
       "setable": false,
       "uiComponent": "sensor",
@@ -922,6 +924,7 @@
         "en": "Boiler temperature bottom",
         "nl": "Boilertemperatuur onder"
       },
+      "icon": "/assets/icons/boiler-bottom.svg",
       "getable": true,
       "setable": false,
       "insights": true,
@@ -938,6 +941,7 @@
         "en": "Boiler temperature top",
         "nl": "Boilertemperatuur boven"
       },
+      "icon": "/assets/icons/boiler-top.svg",
       "getable": true,
       "setable": false,
       "insights": true,
@@ -954,6 +958,7 @@
         "en": "COP today",
         "nl": "COP vandaag"
       },
+      "icon": "/assets/icons/cop.svg",
       "getable": true,
       "setable": false,
       "uiComponent": "sensor",
@@ -967,6 +972,7 @@
         "en": "Electricity today",
         "nl": "Stroom vandaag"
       },
+      "icon": "/assets/icons/electricity.svg",
       "getable": true,
       "setable": false,
       "uiComponent": "sensor",
@@ -984,6 +990,7 @@
         "en": "Heat input",
         "nl": "Opgenomen warmte"
       },
+      "icon": "/assets/icons/heat-input.svg",
       "getable": true,
       "setable": false,
       "uiComponent": "sensor",
@@ -1001,6 +1008,7 @@
         "en": "Heat output",
         "nl": "Afgegeven warmte"
       },
+      "icon": "/assets/icons/heat-output.svg",
       "getable": true,
       "setable": false,
       "uiComponent": "sensor",
@@ -1018,6 +1026,7 @@
         "en": "Heat today",
         "nl": "Warmte vandaag"
       },
+      "icon": "/assets/icons/heat-today.svg",
       "getable": true,
       "setable": false,
       "uiComponent": "sensor",
@@ -1035,6 +1044,7 @@
         "en": "Outdoor temperature",
         "nl": "Buitentemperatuur"
       },
+      "icon": "/assets/icons/outdoor.svg",
       "getable": true,
       "setable": false,
       "uiComponent": "sensor",
@@ -1051,6 +1061,7 @@
         "en": "Supply temperature",
         "nl": "Aanvoertemperatuur"
       },
+      "icon": "/assets/icons/supply.svg",
       "getable": true,
       "setable": false,
       "uiComponent": "sensor",
@@ -1075,6 +1086,7 @@
         "en": "Target supply temperature",
         "nl": "Doelaanvoertemperatuur"
       },
+      "icon": "/assets/icons/target.svg",
       "insights": true
     },
     "measure_water_flow": {
@@ -1083,6 +1095,7 @@
         "en": "Water flow",
         "nl": "Water flow"
       },
+      "icon": "/assets/icons/flow.svg",
       "getable": true,
       "setable": false,
       "uiComponent": "sensor",
@@ -1100,6 +1113,7 @@
         "en": "Heat pump active",
         "nl": "Warmtepomp actief"
       },
+      "icon": "/assets/icons/heat-pump.svg",
       "getable": true,
       "setable": false,
       "uiComponent": null,
@@ -1111,6 +1125,7 @@
         "en": "Heat pump status",
         "nl": "Warmtepompstatus"
       },
+      "icon": "/assets/icons/heat-pump.svg",
       "getable": true,
       "setable": false,
       "uiComponent": "sensor",
@@ -1179,6 +1194,7 @@
         "en": "Thermostat",
         "nl": "Thermostaat"
       },
+      "icon": "/assets/icons/thermostat.svg",
       "getable": true,
       "setable": false,
       "uiComponent": "sensor",

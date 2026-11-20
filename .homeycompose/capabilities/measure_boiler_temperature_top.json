@@ -4,6 +4,7 @@
     "en": "Boiler temperature top",
     "nl": "Boilertemperatuur boven"
   },
+  "icon": "/assets/icons/boiler-top.svg",
   "getable": true,
   "setable": false,
   "insights": true,

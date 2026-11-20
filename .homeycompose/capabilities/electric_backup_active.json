@@ -4,6 +4,7 @@
     "en": "DeWarmte Element",
     "nl": "DeWarmte Element"
   },
+  "icon": "/assets/icons/element.svg",
   "getable": true,
   "setable": false,
   "uiComponent": "sensor",
