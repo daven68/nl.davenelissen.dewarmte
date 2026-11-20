@@ -18,6 +18,7 @@ Eigenaar: Dave (daven68). Communiceer in het **Nederlands**. Dave heeft zelf all
 - **Niet publiceren** naar Homey zonder akkoord van Dave. Pushen naar GitHub publiceert niets; de Action "Publish Homey App" is handmatig.
 - Versie + wijzigingstekst (NL én EN) zet Claude direct in `app.json`, `.homeycompose/app.json`, `package.json`, `package-lock.json` en `.homeychangelog.json`. Niet de Action "Update Homey App Version" gebruiken (die kan maar één taal).
 - Wijzigingstekst opbouwen als blokken: Nieuw / Verbeterd / Opgelost. Geen technische details die gebruikers niet merken.
+  - Vorm: kopregel ("Nieuw:"), daaronder één regel per punt met "• " (regels gescheiden door \n). De changelog-popup van de App Store toont \n als regeleinde (pre-wrap); het blok "What's new" plakt alles op één regel, en dan blijven de bolletjes leesbaar. Punten kort houden.
 - Versienummering: minor (1.x.0) voor nieuwe functies zolang alles achterwaarts compatibel is.
 - Nooit `npm audit fix --force` (breekt eslint-config-athom). De resterende 'high'-meldingen zitten in dev-tooling van Athom.
 - tsconfig blijft op node16: `compatibility` is `>=12.4.0` en Homey < v12.9 draait Node 16/18.
