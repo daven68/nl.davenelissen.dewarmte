@@ -1,14 +1,18 @@
 'use strict';
 
+import Homey from 'homey';
+import axios from 'axios';
+
 import type { HeatCurve } from '../../src/domain/HeatCurve';
 import type { Product, TopBarStatus } from '../../src/api/types';
-import type { ProductService as ProductServiceType } from '../../src/api/products';
-import type { DeWarmteSession } from '../../src/api/session';
-
-const Homey = require('homey');
-const axios: typeof import('axios') = require('axios');
-
-const { SessionExpiredError, deriveSessionKey } = require('../../src/api/session');
+import {
+  DeWarmteSession,
+  DeWarmteSessionRegistry,
+  SessionExpiredError,
+  SessionRegistryOwner,
+  deriveSessionKey,
+} from '../../src/api/session';
+import { getSafeErrorSummary } from '../../src/util/errors';
 
 const PUMP_STATE_TRIGGER_CARDS: Record<string, string> = {
   on: 'pump_state_on',
@@ -52,11 +56,13 @@ const COMMON_CAPABILITIES = [
   'measure_power',
   'measure_heat_input',
   'measure_heat_output',
+  'meter_power',
   'alarm_generic',
 ];
 
 const SPACE_HEATING_CAPABILITIES = [
   'measure_temperature',
+  'measure_outdoor_temperature',
   'measure_target_temperature',
   'measure_supply_temperature',
   'measure_water_flow',
@@ -160,23 +166,8 @@ function getDiagnosticError(error: unknown): Record<string, unknown> {
   };
 }
 
-function getSafeErrorSummary(error: unknown): string {
-  if (axios.isAxiosError(error)) {
-    const status = error.response?.status ?? 'unknown';
-    const code = typeof error.code === 'string'
-      ? error.code.replace(/[^A-Z0-9_-]/gi, '').slice(0, 40)
-      : 'unknown';
-
-    return `API error (status=${status}, code=${code || 'unknown'})`;
-  }
-
-  if (error instanceof Error) {
-    const errorName = error.name.replace(/[^A-Z0-9_-]/gi, '').slice(0, 40);
-    return `${errorName || 'Error'} occurred`;
-  }
-
-  return 'Unknown error occurred';
-}
+/** Longer gaps between two measurements are not counted in the kWh meter. */
+const MAX_ENERGY_GAP_MS = 5 * 60 * 1000;
 
 function normalizeProductType(productType: unknown): string {
   return String(productType || '')
@@ -210,9 +201,9 @@ class DeWarmteDevice extends Homey.Device {
   private pollTimer?: NodeJS.Timeout;
   private pollInProgress = false;
   private lastStatusSummary?: string;
+  private lastPowerSample?: { at: number; kw: number };
   private session?: DeWarmteSession;
   private sessionKey?: string;
-  private products?: ProductServiceType;
 
   async onInit() {
     this.log('Device onInit()');
@@ -272,7 +263,7 @@ class DeWarmteDevice extends Homey.Device {
     this.stopPolling();
 
     if (this.sessionKey) {
-      this.driver.sessions.release(this.sessionKey, this.getId());
+      this.registry.release(this.sessionKey, this.deviceKey);
     }
 
     await this.setStoreValue('refreshToken', refreshToken);
@@ -302,8 +293,17 @@ class DeWarmteDevice extends Homey.Device {
     this.stopPolling();
 
     if (this.sessionKey) {
-      this.driver.sessions.release(this.sessionKey, this.getId());
+      this.registry.release(this.sessionKey, this.deviceKey);
     }
+  }
+
+  /** Stable key of this device (the DeWarmte product ID from pairing). */
+  private get deviceKey(): string {
+    return String(this.getData().id);
+  }
+
+  private get registry(): DeWarmteSessionRegistry {
+    return (this.driver as unknown as SessionRegistryOwner).sessions;
   }
 
   /**
@@ -318,12 +318,12 @@ class DeWarmteDevice extends Homey.Device {
       await this.setStoreValue('sessionKey', sessionKey);
     }
 
-    const session: DeWarmteSession = this.driver.sessions.get(
+    const session = this.registry.get(
       sessionKey,
       storedRefreshToken,
     );
 
-    session.addListener(this.getId(), async (refreshToken: string) => {
+    session.addListener(this.deviceKey, async (refreshToken: string) => {
       await this.setStoreValue('refreshToken', refreshToken);
     });
 
@@ -335,7 +335,6 @@ class DeWarmteDevice extends Homey.Device {
 
     this.sessionKey = sessionKey;
     this.session = session;
-    this.products = session.products;
   }
 
   private stopPolling(): void {
@@ -382,14 +381,20 @@ class DeWarmteDevice extends Homey.Device {
       }
     }
 
+    if (this.getCapabilityValue('meter_power') === null) {
+      await this.setCapabilityValue('meter_power', 0);
+    }
+
     for (const capability of unsupportedCapabilities) {
       if (this.hasCapability(capability)) {
         await this.removeCapability(capability);
       }
     }
 
-    if (this.hasCapability('target_temperature')) {
-      await this.removeCapability('target_temperature');
+    for (const capability of ['target_temperature', 'measure_cop']) {
+      if (this.hasCapability(capability)) {
+        await this.removeCapability(capability);
+      }
     }
   }
 
@@ -403,20 +408,7 @@ class DeWarmteDevice extends Homey.Device {
     let isConnected: boolean;
 
     try {
-      if (!this.session?.client.getAccessToken()) {
-        await this.refreshSession();
-      }
-
-      try {
-        isConnected = await this.updateCapabilities();
-      } catch (err) {
-        if (!axios.isAxiosError(err) || err.response?.status !== 401) {
-          throw err;
-        }
-
-        await this.refreshSession();
-        isConnected = await this.updateCapabilities();
-      }
+      isConnected = await this.updateCapabilities();
 
       if (isConnected) {
         await this.setAvailable();
@@ -428,57 +420,26 @@ class DeWarmteDevice extends Homey.Device {
     }
   }
 
-  private async refreshSession(): Promise<void> {
-    if (!this.session) {
-      throw new Error('DeWarmte session has not been initialized');
-    }
-
-    try {
-      await this.session.refresh();
-    } catch (err) {
-      const status = axios.isAxiosError(err) ? err.response?.status : undefined;
-
-      if (status === 400 || status === 401) {
-        throw new SessionExpiredError();
-      }
-
-      throw err;
-    }
-  }
-
+  /**
+   * Heat curve (stooklijn) of this heat pump. Not used yet; kept for the
+   * planned heat curve feature.
+   */
   async getHeatCurveForView(): Promise<HeatCurve> {
-    if (!this.products) {
-      throw new Error('DeWarmte product service has not been initialized');
-    }
-
-    const productId = this.getSetting('productId');
-
-    if (typeof productId !== 'string' || !productId) {
-      throw new Error('DeWarmte productId setting is missing');
-    }
-
-    try {
-      return await this.products.getHeatCurve(productId);
-    } catch (err) {
-      if (!axios.isAxiosError(err) || err.response?.status !== 401) {
-        throw err;
-      }
-
-      await this.refreshSession();
-      return this.products.getHeatCurve(productId);
-    }
+    return this.getSession().getHeatCurve(this.getProductId());
   }
 
   async getDiagnosticReport(
     captureContext = 'normal',
   ): Promise<Record<string, unknown>> {
     this.log('Creating privacy-safe diagnostic report');
-    const product = await this.getCurrentProductWithSessionRetry();
+    const product = await this.getCurrentProduct();
     let rawSettings: unknown = null;
     let settingsError: Record<string, unknown> | null = null;
 
     try {
-      rawSettings = await this.getOperationSettingsWithSessionRetry();
+      rawSettings = await this.getSession().getOperationSettings(
+        this.getProductId(),
+      );
     } catch (error) {
       this.error(
         `Diagnostic settings unavailable: ${getSafeErrorSummary(error)}`,
@@ -557,78 +518,72 @@ class DeWarmteDevice extends Homey.Device {
     return report;
   }
 
-  private async getCurrentProductWithSessionRetry(): Promise<Product> {
-    try {
-      return await this.getCurrentProduct();
-    } catch (err) {
-      if (!axios.isAxiosError(err) || err.response?.status !== 401) {
-        throw err;
-      }
-
-      await this.refreshSession();
-      return this.getCurrentProduct();
+  private getSession(): DeWarmteSession {
+    if (!this.session) {
+      throw new Error('DeWarmte session has not been initialized');
     }
+
+    return this.session;
   }
 
-  private async getOperationSettingsWithSessionRetry(): Promise<unknown> {
-    if (!this.products) {
-      throw new Error('DeWarmte product service has not been initialized');
-    }
-
+  private getProductId(): string {
     const productId = this.getSetting('productId');
 
     if (typeof productId !== 'string' || !productId) {
       throw new Error('DeWarmte productId setting is missing');
     }
 
-    try {
-      return await this.products.getOperationSettings(productId);
-    } catch (err) {
-      if (!axios.isAxiosError(err) || err.response?.status !== 401) {
-        throw err;
-      }
-
-      await this.refreshSession();
-      return this.products.getOperationSettings(productId);
-    }
-  }
-
-  private async getTopBarStatusWithSessionRetry(): Promise<TopBarStatus> {
-    if (!this.products) {
-      throw new Error('DeWarmte product service has not been initialized');
-    }
-
-    try {
-      return await this.products.getTopBarStatus();
-    } catch (err) {
-      if (!axios.isAxiosError(err) || err.response?.status !== 401) {
-        throw err;
-      }
-
-      await this.refreshSession();
-      return this.products.getTopBarStatus();
-    }
+    return productId;
   }
 
   private async getCurrentProduct(): Promise<Product> {
-    if (!this.products) {
-      throw new Error('DeWarmte product service has not been initialized');
-    }
-
-    const productId = this.getSetting('productId');
-
-    if (typeof productId !== 'string' || !productId) {
-      throw new Error('DeWarmte productId setting is missing');
-    }
-
-    const products = await this.products.getProducts();
-    const product = products.find((item: Product) => item.id === productId);
+    const productId = this.getProductId();
+    const products = await this.getSession().getProducts();
+    const product = products.find((item) => item.id === productId);
 
     if (!product) {
       throw new Error(`DeWarmte product ${productId} was not found`);
     }
 
     return product;
+  }
+
+  /**
+   * DeWarmte only reports the current electrical power, so the kWh meter
+   * (used by Homey Energy) adds up power x time between two measurements.
+   */
+  private async updateEnergyMeter(electricalKw: unknown): Promise<void> {
+    if (
+      typeof electricalKw !== 'number'
+      || !Number.isFinite(electricalKw)
+      || electricalKw < 0
+      || !this.hasCapability('meter_power')
+    ) {
+      return;
+    }
+
+    const now = Date.now();
+    const previous = this.lastPowerSample;
+    this.lastPowerSample = { at: now, kw: electricalKw };
+
+    if (!previous) {
+      return;
+    }
+
+    const elapsedMs = now - previous.at;
+
+    if (elapsedMs <= 0 || elapsedMs > MAX_ENERGY_GAP_MS) {
+      return;
+    }
+
+    const hours = elapsedMs / (60 * 60 * 1000);
+    const addedKwh = ((previous.kw + electricalKw) / 2) * hours;
+    const current = Number(this.getCapabilityValue('meter_power')) || 0;
+
+    await this.setCapabilityValue(
+      'meter_power',
+      Math.round((current + addedKwh) * 10000) / 10000,
+    );
   }
 
   private async setCapabilityValueIfPresent(
@@ -721,7 +676,7 @@ class DeWarmteDevice extends Homey.Device {
 
     if (!pompT) {
       try {
-        topBarStatus = await this.getTopBarStatusWithSessionRetry();
+        topBarStatus = await this.getSession().getTopBarStatus();
       } catch (error) {
         this.error(
           `Top bar status unavailable: ${getSafeErrorSummary(error)}`,
@@ -787,6 +742,7 @@ class DeWarmteDevice extends Homey.Device {
       ),
       this.setCapabilityValueIfPresent('measure_heat_input', product.status.heat_input),
       this.setCapabilityValueIfPresent('measure_heat_output', product.status.heat_output),
+      this.updateEnergyMeter(product.status.electricity_consumption),
       this.setCapabilityValueIfPresent(
         'pump_state',
         currentPumpState,
@@ -818,6 +774,10 @@ class DeWarmteDevice extends Homey.Device {
         this.setCapabilityValueIfPresent(
           'measure_supply_temperature',
           product.status.supply_temperature,
+        ),
+        this.setCapabilityValueIfPresent(
+          'measure_outdoor_temperature',
+          topBarStatus?.outdoor_temperature,
         ),
         this.setCapabilityValueIfPresent(
           'gas_boiler_active',

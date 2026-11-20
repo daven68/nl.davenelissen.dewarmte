@@ -395,9 +395,11 @@
         "measure_temperature",
         "measure_target_temperature",
         "measure_supply_temperature",
+        "measure_outdoor_temperature",
         "measure_power",
         "measure_heat_input",
         "measure_heat_output",
+        "meter_power",
         "measure_water_flow",
         "gas_boiler_active",
         "thermostat_active",
@@ -439,6 +441,12 @@
           "titleFalse": {
             "en": "Inactive",
             "nl": "Niet actief"
+          }
+        },
+        "meter_power": {
+          "title": {
+            "en": "Energy consumption",
+            "nl": "Energieverbruik"
           }
         }
       },
@@ -562,7 +570,8 @@
         "nl": "kW"
       },
       "min": 0,
-      "decimals": 2
+      "decimals": 2,
+      "insights": true
     },
     "measure_heat_output": {
       "type": "number",
@@ -578,7 +587,24 @@
         "nl": "kW"
       },
       "min": 0,
-      "decimals": 2
+      "decimals": 2,
+      "insights": true
+    },
+    "measure_outdoor_temperature": {
+      "type": "number",
+      "title": {
+        "en": "Outdoor temperature",
+        "nl": "Buitentemperatuur"
+      },
+      "getable": true,
+      "setable": false,
+      "uiComponent": "sensor",
+      "units": {
+        "en": "°C",
+        "nl": "°C"
+      },
+      "decimals": 1,
+      "insights": true
     },
     "measure_supply_temperature": {
       "type": "number",
@@ -593,7 +619,8 @@
         "en": "°C",
         "nl": "°C"
       },
-      "decimals": 1
+      "decimals": 1,
+      "insights": true
     },
     "measure_target_temperature": {
       "type": "number",
@@ -608,7 +635,8 @@
       "title": {
         "en": "Target supply temperature",
         "nl": "Doelaanvoertemperatuur"
-      }
+      },
+      "insights": true
     },
     "measure_water_flow": {
       "type": "number",
@@ -624,7 +652,8 @@
         "nl": "L/min"
       },
       "min": 0,
-      "decimals": 2
+      "decimals": 2,
+      "insights": true
     },
     "pump_active": {
       "type": "boolean",

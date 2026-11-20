@@ -1,19 +1,19 @@
 'use strict';
 
+import Homey from 'homey';
+import type PairSession from 'homey/lib/PairSession';
+
 import type { Product } from '../../src/api/types';
+import { AuthService } from '../../src/api/auth';
+import { DeWarmteClient } from '../../src/api/client';
+import { ProductService } from '../../src/api/products';
+import { DeWarmteSessionRegistry, createSessionKey } from '../../src/api/session';
+import { getSafeErrorSummary } from '../../src/util/errors';
 
-const Homey = require('homey');
-const axios: typeof import('axios') = require('axios');
-
-type PairSession = import('homey/lib/PairSession');
-
-const { DeWarmteClient } = require('../../src/api/client');
-const { AuthService } = require('../../src/api/auth');
-const { ProductService } = require('../../src/api/products');
-const {
-  DeWarmteSessionRegistry,
-  createSessionKey,
-} = require('../../src/api/session');
+/** The parts of a DeWarmte device the driver uses during Repair. */
+interface RepairableDevice extends Homey.Device {
+  repairSession(refreshToken: string, sessionKey: string): Promise<void>;
+}
 
 interface LoginData {
   email: string;
@@ -21,36 +21,23 @@ interface LoginData {
 }
 
 interface TargetSupplyTemperatureConditionArgs {
-  device: InstanceType<typeof Homey.Device>;
+  device: Homey.Device;
   temperature: number;
 }
 
 interface PumpStateConditionArgs {
-  device: InstanceType<typeof Homey.Device>;
+  device: Homey.Device;
   state: string;
-}
-
-function getSafeErrorSummary(error: unknown): string {
-  if (axios.isAxiosError(error)) {
-    const status = error.response?.status ?? 'unknown';
-    const code = typeof error.code === 'string'
-      ? error.code.replace(/[^A-Z0-9_-]/gi, '').slice(0, 40)
-      : 'unknown';
-
-    return `API error (status=${status}, code=${code || 'unknown'})`;
-  }
-
-  if (error instanceof Error) {
-    const errorName = error.name.replace(/[^A-Z0-9_-]/gi, '').slice(0, 40);
-    return `${errorName || 'Error'} occurred`;
-  }
-
-  return 'Unknown error occurred';
 }
 
 export = class DeWarmteDriver extends Homey.Driver {
 
   public readonly sessions = new DeWarmteSessionRegistry();
+
+  /** Privacy-safe error description, also used by api.js. */
+  public summarizeError(error: unknown): string {
+    return getSafeErrorSummary(error);
+  }
 
   async onInit() {
     this.log('DeWarmte Driver initialized');
@@ -63,7 +50,7 @@ export = class DeWarmteDriver extends Homey.Driver {
 
     this.homey.flow
       .getConditionCard('pump_is_on')
-      .registerRunListener(({ device }: { device: InstanceType<typeof Homey.Device> }) => {
+      .registerRunListener(({ device }: { device: Homey.Device }) => {
         return device.getCapabilityValue('pump_active') === true;
       });
 
@@ -83,13 +70,13 @@ export = class DeWarmteDriver extends Homey.Driver {
 
     this.homey.flow
       .getConditionCard('gas_boiler_is_active')
-      .registerRunListener(({ device }: { device: InstanceType<typeof Homey.Device> }) => {
+      .registerRunListener(({ device }: { device: Homey.Device }) => {
         return device.getCapabilityValue('gas_boiler_active') === true;
       });
 
     this.homey.flow
       .getConditionCard('thermostat_is_active')
-      .registerRunListener(({ device }: { device: InstanceType<typeof Homey.Device> }) => {
+      .registerRunListener(({ device }: { device: Homey.Device }) => {
         return device.getCapabilityValue('thermostat_active') === true;
       });
   }
@@ -177,7 +164,7 @@ export = class DeWarmteDriver extends Homey.Driver {
    * Insights are kept. All devices that shared the expired login are
    * reconnected at once.
    */
-  async onRepair(session: PairSession, device: InstanceType<typeof Homey.Device>) {
+  async onRepair(session: PairSession, device: RepairableDevice) {
     this.log('=== Repair session started ===');
 
     session.setHandler('login', async ({ email, password }: LoginData) => {
@@ -214,8 +201,8 @@ export = class DeWarmteDriver extends Homey.Driver {
 
       const oldSessionKey = device.getStoreValue('sessionKey');
       const newSessionKey = createSessionKey();
-      const devicesToRepair = this.getDevices().filter(
-        (item: InstanceType<typeof Homey.Device>) => {
+      const devicesToRepair = (this.getDevices() as RepairableDevice[]).filter(
+        (item) => {
           return item === device || (
             typeof oldSessionKey === 'string'
             && oldSessionKey !== ''

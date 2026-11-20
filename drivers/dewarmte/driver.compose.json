@@ -9,9 +9,11 @@
     "measure_temperature",
     "measure_target_temperature",
     "measure_supply_temperature",
+    "measure_outdoor_temperature",
     "measure_power",
     "measure_heat_input",
     "measure_heat_output",
+    "meter_power",
     "measure_water_flow",
     "gas_boiler_active",
     "thermostat_active",
@@ -53,6 +55,12 @@
       "titleFalse": {
         "en": "Inactive",
         "nl": "Niet actief"
+      }
+    },
+    "meter_power": {
+      "title": {
+        "en": "Energy consumption",
+        "nl": "Energieverbruik"
       }
     }
   },

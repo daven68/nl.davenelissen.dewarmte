@@ -11,5 +11,6 @@
   "title": {
     "en": "Target supply temperature",
     "nl": "Doelaanvoertemperatuur"
-  }
+  },
+  "insights": true
 }

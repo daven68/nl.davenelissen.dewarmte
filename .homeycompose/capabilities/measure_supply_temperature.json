@@ -11,5 +11,6 @@
     "en": "°C",
     "nl": "°C"
   },
-  "decimals": 1
+  "decimals": 1,
+  "insights": true
 }

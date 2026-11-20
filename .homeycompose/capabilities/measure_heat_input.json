@@ -12,5 +12,6 @@
     "nl": "kW"
   },
   "min": 0,
-  "decimals": 2
+  "decimals": 2,
+  "insights": true
 }

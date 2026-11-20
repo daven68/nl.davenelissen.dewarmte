@@ -1,0 +1,16 @@
+{
+  "type": "number",
+  "title": {
+    "en": "Outdoor temperature",
+    "nl": "Buitentemperatuur"
+  },
+  "getable": true,
+  "setable": false,
+  "uiComponent": "sensor",
+  "units": {
+    "en": "°C",
+    "nl": "°C"
+  },
+  "decimals": 1,
+  "insights": true
+}
