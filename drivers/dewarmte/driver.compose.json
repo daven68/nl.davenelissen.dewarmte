@@ -15,6 +15,8 @@
     "measure_heat_output",
     "meter_power",
     "measure_cop_today",
+    "measure_heat_today",
+    "measure_electricity_today",
     "measure_water_flow",
     "gas_boiler_active",
     "thermostat_active",

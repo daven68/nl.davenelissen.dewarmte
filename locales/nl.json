@@ -75,6 +75,13 @@
       "selectDevice": "Selecteer een DeWarmte-warmtepomp in de widgetinstellingen.",
       "loadError": "De warmtepompgegevens konden niet worden geladen.",
       "deviceUnavailable": "De warmtepomp is tijdelijk niet beschikbaar."
+    },
+    "today": {
+      "cop": "COP vandaag",
+      "subtitle": "Rendement van je warmtepomp",
+      "selectDevice": "Selecteer een DeWarmte-warmtepomp in de widgetinstellingen.",
+      "loadError": "De COP van vandaag kon niet worden geladen.",
+      "deviceUnavailable": "De warmtepomp is tijdelijk niet beschikbaar."
     }
   },
   "flow": {

@@ -101,6 +101,25 @@
         "en": "The thermostat became inactive",
         "nl": "De thermostaat is niet meer actief"
       }
+    },
+    {
+      "id": "outdoor_temperature_changed",
+      "title": {
+        "en": "The outdoor temperature changed",
+        "nl": "De buitentemperatuur is veranderd"
+      },
+      "tokens": [
+        {
+          "name": "temperature",
+          "type": "number",
+          "title": {
+            "en": "Outdoor temperature",
+            "nl": "Buitentemperatuur"
+          },
+          "example": 7
+        }
+      ],
+      "$filter": "capabilities=measure_outdoor_temperature"
     }
   ],
   "conditions": [
@@ -206,6 +225,55 @@
         "en": "The thermostat !{{is|isn't}} active",
         "nl": "De thermostaat !{{is|is niet}} actief"
       }
+    },
+    {
+      "id": "outdoor_temperature_above",
+      "title": {
+        "en": "The outdoor temperature is above a value",
+        "nl": "De buitentemperatuur is hoger dan een waarde"
+      },
+      "titleFormatted": {
+        "en": "The outdoor temperature is !{{above|below}} [[temperature]] °C",
+        "nl": "De buitentemperatuur is !{{hoger|lager}} dan [[temperature]] °C"
+      },
+      "args": [
+        {
+          "name": "temperature",
+          "type": "number",
+          "title": {
+            "en": "Temperature (°C)",
+            "nl": "Temperatuur (°C)"
+          },
+          "min": -40,
+          "max": 50,
+          "step": 0.5
+        }
+      ],
+      "$filter": "capabilities=measure_outdoor_temperature"
+    },
+    {
+      "id": "cop_today_above",
+      "title": {
+        "en": "Today's COP is above a value",
+        "nl": "COP vandaag is hoger dan een waarde"
+      },
+      "titleFormatted": {
+        "en": "Today's COP is !{{above|below}} [[cop]]",
+        "nl": "COP vandaag is !{{hoger|lager}} dan [[cop]]"
+      },
+      "args": [
+        {
+          "name": "cop",
+          "type": "number",
+          "title": {
+            "en": "COP",
+            "nl": "COP"
+          },
+          "min": 0,
+          "max": 10,
+          "step": 0.1
+        }
+      ]
     }
   ]
 }

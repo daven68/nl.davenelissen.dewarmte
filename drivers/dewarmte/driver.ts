@@ -69,6 +69,20 @@ export = class DeWarmteDriver extends Homey.Driver {
       });
 
     this.homey.flow
+      .getConditionCard('outdoor_temperature_above')
+      .registerRunListener(({ device, temperature }: { device: Homey.Device; temperature: number }) => {
+        const value = device.getCapabilityValue('measure_outdoor_temperature');
+        return typeof value === 'number' && value > temperature;
+      });
+
+    this.homey.flow
+      .getConditionCard('cop_today_above')
+      .registerRunListener(({ device, cop }: { device: Homey.Device; cop: number }) => {
+        const value = device.getCapabilityValue('measure_cop_today');
+        return typeof value === 'number' && value > cop;
+      });
+
+    this.homey.flow
       .getConditionCard('gas_boiler_is_active')
       .registerRunListener(({ device }: { device: Homey.Device }) => {
         return device.getCapabilityValue('gas_boiler_active') === true;

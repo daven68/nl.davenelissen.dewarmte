@@ -1,0 +1,17 @@
+{
+  "type": "number",
+  "title": {
+    "en": "Heat today",
+    "nl": "Warmte vandaag"
+  },
+  "getable": true,
+  "setable": false,
+  "uiComponent": "sensor",
+  "units": {
+    "en": "kWh",
+    "nl": "kWh"
+  },
+  "decimals": 1,
+  "min": 0,
+  "insights": true
+}

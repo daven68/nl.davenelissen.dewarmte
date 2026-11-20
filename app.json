@@ -244,6 +244,31 @@
             "filter": "driver_id=dewarmte"
           }
         ]
+      },
+      {
+        "id": "outdoor_temperature_changed",
+        "title": {
+          "en": "The outdoor temperature changed",
+          "nl": "De buitentemperatuur is veranderd"
+        },
+        "tokens": [
+          {
+            "name": "temperature",
+            "type": "number",
+            "title": {
+              "en": "Outdoor temperature",
+              "nl": "Buitentemperatuur"
+            },
+            "example": 7
+          }
+        ],
+        "args": [
+          {
+            "type": "device",
+            "name": "device",
+            "filter": "driver_id=dewarmte&capabilities=measure_outdoor_temperature"
+          }
+        ]
       }
     ],
     "conditions": [
@@ -380,6 +405,64 @@
             "filter": "driver_id=dewarmte"
           }
         ]
+      },
+      {
+        "id": "outdoor_temperature_above",
+        "title": {
+          "en": "The outdoor temperature is above a value",
+          "nl": "De buitentemperatuur is hoger dan een waarde"
+        },
+        "titleFormatted": {
+          "en": "The outdoor temperature is !{{above|below}} [[temperature]] °C",
+          "nl": "De buitentemperatuur is !{{hoger|lager}} dan [[temperature]] °C"
+        },
+        "args": [
+          {
+            "type": "device",
+            "name": "device",
+            "filter": "driver_id=dewarmte&capabilities=measure_outdoor_temperature"
+          },
+          {
+            "name": "temperature",
+            "type": "number",
+            "title": {
+              "en": "Temperature (°C)",
+              "nl": "Temperatuur (°C)"
+            },
+            "min": -40,
+            "max": 50,
+            "step": 0.5
+          }
+        ]
+      },
+      {
+        "id": "cop_today_above",
+        "title": {
+          "en": "Today's COP is above a value",
+          "nl": "COP vandaag is hoger dan een waarde"
+        },
+        "titleFormatted": {
+          "en": "Today's COP is !{{above|below}} [[cop]]",
+          "nl": "COP vandaag is !{{hoger|lager}} dan [[cop]]"
+        },
+        "args": [
+          {
+            "type": "device",
+            "name": "device",
+            "filter": "driver_id=dewarmte"
+          },
+          {
+            "name": "cop",
+            "type": "number",
+            "title": {
+              "en": "COP",
+              "nl": "COP"
+            },
+            "min": 0,
+            "max": 10,
+            "step": 0.1
+          }
+        ]
       }
     ]
   },
@@ -401,6 +484,8 @@
         "measure_heat_output",
         "meter_power",
         "measure_cop_today",
+        "measure_heat_today",
+        "measure_electricity_today",
         "measure_water_flow",
         "gas_boiler_active",
         "thermostat_active",
@@ -503,6 +588,29 @@
         }
       },
       "id": "heat-pump"
+    },
+    "today": {
+      "name": {
+        "en": "Heat Pump COP Today",
+        "nl": "COP vandaag"
+      },
+      "height": 110,
+      "devices": {
+        "type": "app",
+        "singular": true,
+        "filter": {
+          "class": "heatpump",
+          "capabilities": "measure_cop_today"
+        }
+      },
+      "settings": [],
+      "api": {
+        "getToday": {
+          "method": "GET",
+          "path": "/today"
+        }
+      },
+      "id": "today"
     }
   },
   "capabilities": {
@@ -570,6 +678,23 @@
       "min": 0,
       "insights": true
     },
+    "measure_electricity_today": {
+      "type": "number",
+      "title": {
+        "en": "Electricity today",
+        "nl": "Stroom vandaag"
+      },
+      "getable": true,
+      "setable": false,
+      "uiComponent": "sensor",
+      "units": {
+        "en": "kWh",
+        "nl": "kWh"
+      },
+      "decimals": 1,
+      "min": 0,
+      "insights": true
+    },
     "measure_heat_input": {
       "type": "number",
       "title": {
@@ -602,6 +727,23 @@
       },
       "min": 0,
       "decimals": 2,
+      "insights": true
+    },
+    "measure_heat_today": {
+      "type": "number",
+      "title": {
+        "en": "Heat today",
+        "nl": "Warmte vandaag"
+      },
+      "getable": true,
+      "setable": false,
+      "uiComponent": "sensor",
+      "units": {
+        "en": "kWh",
+        "nl": "kWh"
+      },
+      "decimals": 1,
+      "min": 0,
       "insights": true
     },
     "measure_outdoor_temperature": {

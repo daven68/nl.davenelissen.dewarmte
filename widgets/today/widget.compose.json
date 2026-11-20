@@ -1,0 +1,22 @@
+{
+  "name": {
+    "en": "Heat Pump COP Today",
+    "nl": "COP vandaag"
+  },
+  "height": 110,
+  "devices": {
+    "type": "app",
+    "singular": true,
+    "filter": {
+      "class": "heatpump",
+      "capabilities": "measure_cop_today"
+    }
+  },
+  "settings": [],
+  "api": {
+    "getToday": {
+      "method": "GET",
+      "path": "/today"
+    }
+  }
+}

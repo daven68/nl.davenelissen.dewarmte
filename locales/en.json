@@ -75,6 +75,13 @@
       "selectDevice": "Select a DeWarmte heat pump in the widget settings.",
       "loadError": "Could not load heat pump data.",
       "deviceUnavailable": "The heat pump is temporarily unavailable."
+    },
+    "today": {
+      "cop": "COP today",
+      "subtitle": "Efficiency of your heat pump",
+      "selectDevice": "Select a DeWarmte heat pump in the widget settings.",
+      "loadError": "Today's COP could not be loaded.",
+      "deviceUnavailable": "The heat pump is temporarily unavailable."
     }
   },
   "flow": {

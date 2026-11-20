@@ -1,8 +1,8 @@
 Monitor je DeWarmte-warmtepomp of warmtepompboiler met Homey. De beschikbare gegevens worden afgestemd op het aangesloten model.
 
-Voor Pomp AO toont de app onder andere de bedrijfsstatus, aanvoer-, retour-, doel- en buitentemperatuur, het elektrische vermogen, de opgenomen en afgegeven warmte, de COP van vandaag, de waterflow, de warmtevraag van de thermostaat, ondersteuning door de cv-ketel en de algemene storingsstatus.
+Voor Pomp AO toont de app onder andere de bedrijfsstatus, aanvoer-, retour-, doel- en buitentemperatuur, het elektrische vermogen, de opgenomen en afgegeven warmte, de COP, warmte en stroom van vandaag, de waterflow, de warmtevraag van de thermostaat, ondersteuning door de cv-ketel en de algemene storingsstatus.
 
-Voor Pomp T toont de app de bedrijfsstatus, de bovenste en onderste boilertemperatuur, het elektrische vermogen, de opgenomen en afgegeven warmte, de COP van vandaag en de algemene storingsstatus.
+Voor Pomp T toont de app de bedrijfsstatus, de bovenste en onderste boilertemperatuur, het elektrische vermogen, de opgenomen en afgegeven warmte, de COP, warmte en stroom van vandaag en de algemene storingsstatus.
 
 Gebruik Flow om te reageren op statuswijzigingen. Metingen zijn beschikbaar in Homey Insights en het energieverbruik (kWh) verschijnt in Homey Energy. De dashboardwidget brengt de belangrijkste metingen en statussen overzichtelijk bij elkaar en past zich aan het aangesloten model aan.
 

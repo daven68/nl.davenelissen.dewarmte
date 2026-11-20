@@ -58,6 +58,8 @@ const COMMON_CAPABILITIES = [
   'measure_heat_output',
   'meter_power',
   'measure_cop_today',
+  'measure_heat_today',
+  'measure_electricity_today',
   'alarm_generic',
 ];
 
@@ -587,6 +589,11 @@ class DeWarmteDevice extends Homey.Device {
         today,
         'hourly', // = the "Day" tab of the DeWarmte app
       );
+      const kwh = (value: unknown) => (
+        typeof value === 'number' && Number.isFinite(value) && value >= 0
+          ? Math.round(value * 10) / 10
+          : null
+      );
       const cop = typeof insights.cop === 'number'
         && Number.isFinite(insights.cop)
         && insights.cop > 0
@@ -596,6 +603,14 @@ class DeWarmteDevice extends Homey.Device {
         : null;
 
       await this.setCapabilityValue('measure_cop_today', cop);
+      await this.setCapabilityValueIfPresent(
+        'measure_heat_today',
+        kwh(insights.heat_sum),
+      );
+      await this.setCapabilityValueIfPresent(
+        'measure_electricity_today',
+        kwh(insights.electricity_sum),
+      );
     } catch (err) {
       this.error(`Daily insights unavailable: ${getSafeErrorSummary(err)}`);
     }
@@ -704,6 +719,23 @@ class DeWarmteDevice extends Homey.Device {
     await this.triggerFlowCard(`${capability}_${currentValue}`);
   }
 
+  private async triggerNumberFlowCard(
+    cardId: string,
+    previousValue: unknown,
+    currentValue: unknown,
+  ): Promise<void> {
+    if (
+      typeof previousValue !== 'number'
+      || typeof currentValue !== 'number'
+      || !Number.isFinite(currentValue)
+      || previousValue === currentValue
+    ) {
+      return;
+    }
+
+    await this.triggerFlowCard(cardId, { temperature: currentValue });
+  }
+
   private async triggerTargetTemperatureFlowCard(
     previousValue: unknown,
     currentValue: unknown,
@@ -749,6 +781,9 @@ class DeWarmteDevice extends Homey.Device {
     );
     const previousGasBoiler = this.getCapabilityValue('gas_boiler_active');
     const previousThermostat = this.getCapabilityValue('thermostat_active');
+    const previousOutdoorTemperature = this.getCapabilityValue(
+      'measure_outdoor_temperature',
+    );
     const reportedPumpState = typeof product.status.state === 'string'
       ? product.status.state.trim().toLowerCase()
       : '';
@@ -864,6 +899,11 @@ class DeWarmteDevice extends Homey.Device {
         'gas_boiler_active',
         previousGasBoiler,
         this.getCapabilityValue('gas_boiler_active'),
+      );
+      await this.triggerNumberFlowCard(
+        'outdoor_temperature_changed',
+        previousOutdoorTemperature,
+        this.getCapabilityValue('measure_outdoor_temperature'),
       );
       await this.triggerBooleanFlowCards(
         'thermostat_active',
