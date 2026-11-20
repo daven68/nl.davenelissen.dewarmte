@@ -42,6 +42,27 @@
         "en": "Defrosting",
         "nl": "Ontdooicyclus"
       }
+    },
+    {
+      "id": "cooling",
+      "title": {
+        "en": "Cooling",
+        "nl": "Koelen"
+      }
+    },
+    {
+      "id": "disinfecting",
+      "title": {
+        "en": "Disinfecting",
+        "nl": "Desinfecteren"
+      }
+    },
+    {
+      "id": "tap_water_assist",
+      "title": {
+        "en": "Tap water heat assist",
+        "nl": "Hulp bij tapwater"
+      }
     }
   ]
 }

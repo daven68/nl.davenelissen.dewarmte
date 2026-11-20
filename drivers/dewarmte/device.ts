@@ -24,7 +24,25 @@ const PUMP_STATE_TRIGGER_CARDS: Record<string, string> = {
   heating: 'pump_state_heating',
   standby: 'pump_state_standby',
   defrosting: 'pump_state_defrosting',
+  cooling: 'pump_state_cooling',
+  disinfecting: 'pump_state_disinfecting',
+  tap_water_assist: 'pump_state_tap_water_assist',
   off: 'pump_state_off',
+};
+
+/**
+ * Operating states as DeWarmte reports them (lowercase, without spaces,
+ * underscores or dashes), mapped to the values of the pump_state capability.
+ * Same vocabulary as the DeWarmte web app.
+ */
+const REPORTED_PUMP_STATES: Record<string, string> = {
+  off: 'off',
+  standby: 'standby',
+  heating: 'heating',
+  defrosting: 'defrosting',
+  cooling: 'cooling',
+  disinfecting: 'disinfecting',
+  pompthelp: 'tap_water_assist',
 };
 
 const COMMON_EXPECTED_STATUS_FIELDS = [
@@ -656,8 +674,14 @@ class DeWarmteDevice extends Homey.Device {
    * capability is only added the first time the heat pump reports it being
    * used; installations without an element never see it.
    */
-  private async updateElectricBackup(status: Product['status']): Promise<void> {
+  private async updateElectricBackup(
+    status: Product['status'],
+    pompT: boolean,
+  ): Promise<void> {
+    // The Pomp T reports its electric heater as `gas_boiler`; that is what the
+    // DeWarmte web app shows as the electric heater of a Pomp T.
     const active = status.is_element_on === true
+      || (pompT && status.gas_boiler === true)
       || (typeof status.electric_backup_usage === 'number'
         && status.electric_backup_usage > 0);
 
@@ -895,17 +919,8 @@ class DeWarmteDevice extends Homey.Device {
       ? product.status.state.trim().toLowerCase()
       : '';
     const normalizedPumpState = reportedPumpState.replace(/[\s_-]+/g, '');
-    const supportedPumpStates = new Set([
-      'off',
-      'standby',
-      'heating',
-      'defrosting',
-    ]);
-    let currentPumpState = product.status.is_on ? 'on' : 'off';
-
-    if (supportedPumpStates.has(normalizedPumpState)) {
-      currentPumpState = normalizedPumpState;
-    }
+    const currentPumpState = REPORTED_PUMP_STATES[normalizedPumpState]
+      || (product.status.is_on ? 'on' : 'off');
 
     const errors = Array.isArray(product.status.errors) ? product.status.errors : [];
     const hasAlarm = hasFault(product.status);
@@ -990,7 +1005,7 @@ class DeWarmteDevice extends Homey.Device {
     }
 
     await Promise.all(capabilityUpdates);
-    await this.updateElectricBackup(product.status);
+    await this.updateElectricBackup(product.status, pompT);
     await this.updateDailyInsights();
 
     await this.triggerPumpStateFlowCards(

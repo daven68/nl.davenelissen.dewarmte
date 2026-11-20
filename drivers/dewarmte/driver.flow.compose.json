@@ -50,6 +50,27 @@
       }
     },
     {
+      "id": "pump_state_cooling",
+      "title": {
+        "en": "The heat pump started cooling",
+        "nl": "De warmtepomp is gaan koelen"
+      }
+    },
+    {
+      "id": "pump_state_disinfecting",
+      "title": {
+        "en": "The disinfection (legionella protection) started",
+        "nl": "De desinfectie (legionellabeveiliging) is gestart"
+      }
+    },
+    {
+      "id": "pump_state_tap_water_assist",
+      "title": {
+        "en": "The heat pump started assisting with tap water",
+        "nl": "De warmtepomp is gaan helpen bij tapwater"
+      }
+    },
+    {
       "id": "pump_state_off",
       "title": {
         "en": "The heat pump switched off",
@@ -222,6 +243,27 @@
               "label": {
                 "en": "Defrosting",
                 "nl": "Ontdooicyclus"
+              }
+            },
+            {
+              "id": "cooling",
+              "label": {
+                "en": "Cooling",
+                "nl": "Koelen"
+              }
+            },
+            {
+              "id": "disinfecting",
+              "label": {
+                "en": "Disinfecting",
+                "nl": "Desinfecteren"
+              }
+            },
+            {
+              "id": "tap_water_assist",
+              "label": {
+                "en": "Tap water heat assist",
+                "nl": "Hulp bij tapwater"
               }
             },
             {

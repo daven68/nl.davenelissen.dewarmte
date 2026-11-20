@@ -93,7 +93,10 @@
       "off": "Off",
       "standby": "Standby",
       "heating": "Heating",
-      "defrosting": "Defrosting"
+      "defrosting": "Defrosting",
+      "cooling": "Cooling",
+      "disinfecting": "Disinfecting",
+      "tap_water_assist": "Tap water heat assist"
     }
   }
 }

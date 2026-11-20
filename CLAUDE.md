@@ -41,5 +41,6 @@ Eigenaar: Dave (daven68). Communiceer in het **Nederlands**. Dave heeft zelf all
 
 ## Status (november 2026)
 - 1.2.9 wacht op goedkeuring door Athom; 1.3.0 is klaar maar wordt pas gepubliceerd na die goedkeuring. Nieuwe wijzigingen tot dan onder 1.3.0.
-- Na publicatie 1.3.0: bericht aan Wilco in issue #1 (excuus voor late reactie + 3 nieuwe rapporten vragen), John laten weten dat de cv-ketelmelding (issue #4) hersteld is, issues #2 en #3 bekijken.
+- Na publicatie 1.3.0: bericht aan Wilco in issue #1 (excuus voor late reactie + 3 nieuwe rapporten vragen), issues #2 en #3 bekijken.
+- John is al per mail geïnformeerd over de herstelde cv-ketelmelding (issue #4).
 - Ideeën: stooklijn alleen tonen; Pomp T-warmwatergegevens; boost/stooklijn bedienen pas na overleg.

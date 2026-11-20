@@ -151,6 +151,48 @@
         ]
       },
       {
+        "id": "pump_state_cooling",
+        "title": {
+          "en": "The heat pump started cooling",
+          "nl": "De warmtepomp is gaan koelen"
+        },
+        "args": [
+          {
+            "type": "device",
+            "name": "device",
+            "filter": "driver_id=dewarmte"
+          }
+        ]
+      },
+      {
+        "id": "pump_state_disinfecting",
+        "title": {
+          "en": "The disinfection (legionella protection) started",
+          "nl": "De desinfectie (legionellabeveiliging) is gestart"
+        },
+        "args": [
+          {
+            "type": "device",
+            "name": "device",
+            "filter": "driver_id=dewarmte"
+          }
+        ]
+      },
+      {
+        "id": "pump_state_tap_water_assist",
+        "title": {
+          "en": "The heat pump started assisting with tap water",
+          "nl": "De warmtepomp is gaan helpen bij tapwater"
+        },
+        "args": [
+          {
+            "type": "device",
+            "name": "device",
+            "filter": "driver_id=dewarmte"
+          }
+        ]
+      },
+      {
         "id": "pump_state_off",
         "title": {
           "en": "The heat pump switched off",
@@ -297,6 +339,56 @@
             "filter": "driver_id=dewarmte&capabilities=electric_backup_active"
           }
         ]
+      },
+      {
+        "id": "boiler_temperature_top_changed",
+        "title": {
+          "en": "The top boiler temperature changed",
+          "nl": "De boilertemperatuur boven is veranderd"
+        },
+        "tokens": [
+          {
+            "name": "temperature",
+            "type": "number",
+            "title": {
+              "en": "Boiler temperature top",
+              "nl": "Boilertemperatuur boven"
+            },
+            "example": 50
+          }
+        ],
+        "args": [
+          {
+            "type": "device",
+            "name": "device",
+            "filter": "driver_id=dewarmte&capabilities=measure_boiler_temperature_top"
+          }
+        ]
+      },
+      {
+        "id": "boiler_temperature_bottom_changed",
+        "title": {
+          "en": "The bottom boiler temperature changed",
+          "nl": "De boilertemperatuur onder is veranderd"
+        },
+        "tokens": [
+          {
+            "name": "temperature",
+            "type": "number",
+            "title": {
+              "en": "Boiler temperature bottom",
+              "nl": "Boilertemperatuur onder"
+            },
+            "example": 50
+          }
+        ],
+        "args": [
+          {
+            "type": "device",
+            "name": "device",
+            "filter": "driver_id=dewarmte&capabilities=measure_boiler_temperature_bottom"
+          }
+        ]
       }
     ],
     "conditions": [
@@ -350,6 +442,27 @@
                 "label": {
                   "en": "Defrosting",
                   "nl": "Ontdooicyclus"
+                }
+              },
+              {
+                "id": "cooling",
+                "label": {
+                  "en": "Cooling",
+                  "nl": "Koelen"
+                }
+              },
+              {
+                "id": "disinfecting",
+                "label": {
+                  "en": "Disinfecting",
+                  "nl": "Desinfecteren"
+                }
+              },
+              {
+                "id": "tap_water_assist",
+                "label": {
+                  "en": "Tap water heat assist",
+                  "nl": "Hulp bij tapwater"
                 }
               },
               {
@@ -503,6 +616,64 @@
             "type": "device",
             "name": "device",
             "filter": "driver_id=dewarmte&capabilities=electric_backup_active"
+          }
+        ]
+      },
+      {
+        "id": "boiler_temperature_top_above",
+        "title": {
+          "en": "The top boiler temperature is above a value",
+          "nl": "De boilertemperatuur boven is hoger dan een waarde"
+        },
+        "titleFormatted": {
+          "en": "The top boiler temperature is !{{above|below}} [[temperature]] °C",
+          "nl": "De boilertemperatuur boven is !{{hoger|lager}} dan [[temperature]] °C"
+        },
+        "args": [
+          {
+            "type": "device",
+            "name": "device",
+            "filter": "driver_id=dewarmte&capabilities=measure_boiler_temperature_top"
+          },
+          {
+            "name": "temperature",
+            "type": "number",
+            "title": {
+              "en": "Temperature (°C)",
+              "nl": "Temperatuur (°C)"
+            },
+            "min": 0,
+            "max": 90,
+            "step": 0.5
+          }
+        ]
+      },
+      {
+        "id": "boiler_temperature_bottom_above",
+        "title": {
+          "en": "The bottom boiler temperature is above a value",
+          "nl": "De boilertemperatuur onder is hoger dan een waarde"
+        },
+        "titleFormatted": {
+          "en": "The bottom boiler temperature is !{{above|below}} [[temperature]] °C",
+          "nl": "De boilertemperatuur onder is !{{hoger|lager}} dan [[temperature]] °C"
+        },
+        "args": [
+          {
+            "type": "device",
+            "name": "device",
+            "filter": "driver_id=dewarmte&capabilities=measure_boiler_temperature_bottom"
+          },
+          {
+            "name": "temperature",
+            "type": "number",
+            "title": {
+              "en": "Temperature (°C)",
+              "nl": "Temperatuur (°C)"
+            },
+            "min": 0,
+            "max": 90,
+            "step": 0.5
           }
         ]
       }
@@ -977,6 +1148,27 @@
           "title": {
             "en": "Defrosting",
             "nl": "Ontdooicyclus"
+          }
+        },
+        {
+          "id": "cooling",
+          "title": {
+            "en": "Cooling",
+            "nl": "Koelen"
+          }
+        },
+        {
+          "id": "disinfecting",
+          "title": {
+            "en": "Disinfecting",
+            "nl": "Desinfecteren"
+          }
+        },
+        {
+          "id": "tap_water_assist",
+          "title": {
+            "en": "Tap water heat assist",
+            "nl": "Hulp bij tapwater"
           }
         }
       ]

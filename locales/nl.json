@@ -93,7 +93,10 @@
       "off": "Uit",
       "standby": "Stand-by",
       "heating": "Verwarmen",
-      "defrosting": "Ontdooicyclus"
+      "defrosting": "Ontdooicyclus",
+      "cooling": "Koelen",
+      "disinfecting": "Desinfecteren",
+      "tap_water_assist": "Hulp bij tapwater"
     }
   }
 }
