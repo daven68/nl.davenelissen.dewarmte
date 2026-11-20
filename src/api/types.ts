@@ -49,6 +49,29 @@ export interface TopBarStatus {
   outdoor_temperature?: number;
 }
 
+/**
+ * Resolution of the Insights data. The DeWarmte app uses: Now = current,
+ * Day = hourly, Week = daily, Month = weekly, Year = monthly, All = yearly.
+ */
+export type InsightsTimespan =
+  | 'current'
+  | 'hourly'
+  | 'daily'
+  | 'weekly'
+  | 'monthly'
+  | 'yearly';
+
+/** Response of /customer/products/{id}/insights/ (fields used by the app). */
+export interface ProductInsights {
+  [key: string]: unknown;
+  time_start?: string;
+  time_end?: string;
+  timespan?: string;
+  heat_sum?: number;
+  electricity_sum?: number;
+  cop?: number;
+}
+
 export interface HeatCurveSettings {
   heat_curve_mode: string;
   heating_kind: string;

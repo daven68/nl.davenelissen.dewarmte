@@ -1,0 +1,13 @@
+{
+  "type": "number",
+  "title": {
+    "en": "COP today",
+    "nl": "COP vandaag"
+  },
+  "getable": true,
+  "setable": false,
+  "uiComponent": "sensor",
+  "decimals": 1,
+  "min": 0,
+  "insights": true
+}

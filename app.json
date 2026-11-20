@@ -400,6 +400,7 @@
         "measure_heat_input",
         "measure_heat_output",
         "meter_power",
+        "measure_cop_today",
         "measure_water_flow",
         "gas_boiler_active",
         "thermostat_active",
@@ -555,6 +556,19 @@
         "nl": "°C"
       },
       "decimals": 1
+    },
+    "measure_cop_today": {
+      "type": "number",
+      "title": {
+        "en": "COP today",
+        "nl": "COP vandaag"
+      },
+      "getable": true,
+      "setable": false,
+      "uiComponent": "sensor",
+      "decimals": 1,
+      "min": 0,
+      "insights": true
     },
     "measure_heat_input": {
       "type": "number",

@@ -6,8 +6,10 @@ import {
 } from '../domain/HeatCurveMapper';
 import {
   HeatCurveSettings,
+  InsightsTimespan,
   OperationSettingsResponse,
   Product,
+  ProductInsights,
   ProductListResponse,
   TopBarStatus,
 } from './types';
@@ -42,6 +44,24 @@ export class ProductService {
    */
   async getTopBarStatus(): Promise<TopBarStatus> {
     return this.client.get<TopBarStatus>('/customer/products/tb-status/');
+  }
+
+  /**
+   * Retourneert de Insights (o.a. COP, warmte- en stroomtotaal) van een
+   * warmtepomp over een periode, zoals de officiële app die toont.
+   * startDate is een datum in de vorm JJJJ-MM-DD.
+   */
+  async getInsights(
+    productId: string,
+    startDate: string,
+    timespan: InsightsTimespan,
+  ): Promise<ProductInsights> {
+    const query = `start_date=${encodeURIComponent(startDate)}`
+      + `&timespan=${encodeURIComponent(timespan)}`;
+
+    return this.client.get<ProductInsights>(
+      `/customer/products/${productId}/insights/?${query}`,
+    );
   }
 
   /**

@@ -6,8 +6,10 @@ import { DeWarmteClient } from './client';
 import { ProductService } from './products';
 import type { HeatCurve } from '../domain/HeatCurve';
 import type {
+  InsightsTimespan,
   OperationSettingsResponse,
   Product,
+  ProductInsights,
   TopBarStatus,
 } from './types';
 import { getHttpStatus } from '../util/errors';
@@ -86,6 +88,16 @@ export class DeWarmteSession {
     productId: string,
   ): Promise<OperationSettingsResponse> {
     return this.request(() => this.products.getOperationSettings(productId));
+  }
+
+  public getInsights(
+    productId: string,
+    startDate: string,
+    timespan: InsightsTimespan,
+  ): Promise<ProductInsights> {
+    return this.request(
+      () => this.products.getInsights(productId, startDate, timespan),
+    );
   }
 
   public getHeatCurve(productId: string): Promise<HeatCurve> {

@@ -57,6 +57,7 @@ const COMMON_CAPABILITIES = [
   'measure_heat_input',
   'measure_heat_output',
   'meter_power',
+  'measure_cop_today',
   'alarm_generic',
 ];
 
@@ -166,6 +167,22 @@ function getDiagnosticError(error: unknown): Record<string, unknown> {
   };
 }
 
+/** The daily COP changes slowly, so it is fetched every 5 minutes. */
+const INSIGHTS_INTERVAL_MS = 5 * 60 * 1000;
+
+/** Date (YYYY-MM-DD) in the given time zone, as the DeWarmte API expects. */
+function formatLocalDate(date: Date, timeZone: string): string {
+  const parts = new Intl.DateTimeFormat('en-US', {
+    timeZone,
+    year: 'numeric',
+    month: '2-digit',
+    day: '2-digit',
+  }).formatToParts(date);
+  const part = (type: string) => parts.find((item) => item.type === type)?.value;
+
+  return `${part('year')}-${part('month')}-${part('day')}`;
+}
+
 /** Longer gaps between two measurements are not counted in the kWh meter. */
 const MAX_ENERGY_GAP_MS = 5 * 60 * 1000;
 
@@ -202,6 +219,7 @@ class DeWarmteDevice extends Homey.Device {
   private pollInProgress = false;
   private lastStatusSummary?: string;
   private lastPowerSample?: { at: number; kw: number };
+  private lastInsightsAt = 0;
   private session?: DeWarmteSession;
   private sessionKey?: string;
 
@@ -549,6 +567,41 @@ class DeWarmteDevice extends Homey.Device {
   }
 
   /**
+   * COP of today, exactly as the DeWarmte app shows it under Insights > Day.
+   * A failure here never makes the device unavailable.
+   */
+  private async updateDailyInsights(): Promise<void> {
+    if (
+      !this.hasCapability('measure_cop_today')
+      || Date.now() - this.lastInsightsAt < INSIGHTS_INTERVAL_MS
+    ) {
+      return;
+    }
+
+    this.lastInsightsAt = Date.now();
+
+    try {
+      const today = formatLocalDate(new Date(), this.homey.clock.getTimezone());
+      const insights = await this.getSession().getInsights(
+        this.getProductId(),
+        today,
+        'hourly', // = the "Day" tab of the DeWarmte app
+      );
+      const cop = typeof insights.cop === 'number'
+        && Number.isFinite(insights.cop)
+        && insights.cop > 0
+        && typeof insights.electricity_sum === 'number'
+        && insights.electricity_sum > 0
+        ? Math.round(insights.cop * 10) / 10
+        : null;
+
+      await this.setCapabilityValue('measure_cop_today', cop);
+    } catch (err) {
+      this.error(`Daily insights unavailable: ${getSafeErrorSummary(err)}`);
+    }
+  }
+
+  /**
    * DeWarmte only reports the current electrical power, so the kWh meter
    * (used by Homey Energy) adds up power x time between two measurements.
    */
@@ -795,6 +848,7 @@ class DeWarmteDevice extends Homey.Device {
     }
 
     await Promise.all(capabilityUpdates);
+    await this.updateDailyInsights();
 
     await this.triggerPumpStateFlowCards(
       previousPumpState,
