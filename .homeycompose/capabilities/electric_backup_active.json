@@ -1,8 +1,8 @@
 {
   "type": "boolean",
   "title": {
-    "en": "Electric backup heater",
-    "nl": "Elektrische bijverwarming"
+    "en": "DeWarmte Element",
+    "nl": "DeWarmte Element"
   },
   "getable": true,
   "setable": false,
@@ -10,11 +10,11 @@
   "uiQuickAction": false,
   "insights": true,
   "insightsTitleTrue": {
-    "en": "Electric backup heater on",
-    "nl": "Elektrische bijverwarming aan"
+    "en": "DeWarmte Element on",
+    "nl": "DeWarmte Element aan"
   },
   "insightsTitleFalse": {
-    "en": "Electric backup heater off",
-    "nl": "Elektrische bijverwarming uit"
+    "en": "DeWarmte Element off",
+    "nl": "DeWarmte Element uit"
   }
 }

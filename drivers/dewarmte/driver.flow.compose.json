@@ -124,16 +124,16 @@
     {
       "id": "electric_backup_active_true",
       "title": {
-        "en": "The electric backup heater turned on",
-        "nl": "De elektrische bijverwarming is aangegaan"
+        "en": "The DeWarmte Element turned on",
+        "nl": "Het DeWarmte Element is aangegaan"
       },
       "$filter": "capabilities=electric_backup_active"
     },
     {
       "id": "electric_backup_active_false",
       "title": {
-        "en": "The electric backup heater turned off",
-        "nl": "De elektrische bijverwarming is uitgegaan"
+        "en": "The DeWarmte Element turned off",
+        "nl": "Het DeWarmte Element is uitgegaan"
       },
       "$filter": "capabilities=electric_backup_active"
     }
@@ -294,8 +294,8 @@
     {
       "id": "electric_backup_is_active",
       "title": {
-        "en": "The electric backup heater !{{is|isn't}} on",
-        "nl": "De elektrische bijverwarming !{{is|is niet}} aan"
+        "en": "The DeWarmte Element !{{is|isn't}} on",
+        "nl": "Het DeWarmte Element !{{is|is niet}} aan"
       },
       "$filter": "capabilities=electric_backup_active"
     }

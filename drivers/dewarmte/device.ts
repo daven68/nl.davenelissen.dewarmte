@@ -652,7 +652,7 @@ class DeWarmteDevice extends Homey.Device {
   }
 
   /**
-   * Electric backup heater (element). Not every installation has one, so the
+   * DeWarmte Element (electric backup heater). Not every installation has one, so the
    * capability is only added the first time the heat pump reports it being
    * used; installations without an element never see it.
    */
@@ -666,7 +666,7 @@ class DeWarmteDevice extends Homey.Device {
         return;
       }
 
-      this.log('Electric backup heater detected, adding capability');
+      this.log('DeWarmte Element detected, adding capability');
       await this.addCapability('electric_backup_active');
     }
 
