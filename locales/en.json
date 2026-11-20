@@ -9,10 +9,19 @@
       "error": "Signing in to DeWarmte failed."
     }
   },
+  "repair": {
+    "login": {
+      "title": "Sign in to DeWarmte again",
+      "subtitle": "Sign in again with your DeWarmte account. Your Flows and Insights are kept.",
+      "success": "Done! The heat pump is connected again.",
+      "wrong_account": "This heat pump was not found in this DeWarmte account. Sign in with the account you used to add the heat pump."
+    }
+  },
   "device": {
-    "session_missing": "The DeWarmte session is missing. Pair the device again.",
+    "session_missing": "The DeWarmte session is missing. Use Repair under Maintenance in the device settings to sign in again.",
     "connection_failed": "Unable to connect to DeWarmte.",
-    "disconnected": "The DeWarmte device is offline."
+    "disconnected": "The DeWarmte device is offline.",
+    "session_expired": "The DeWarmte sign-in has expired. Use Repair under Maintenance in the device settings to sign in again."
   },
   "settings": {
     "diagnostics": {

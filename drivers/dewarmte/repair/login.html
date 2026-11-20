@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8" />
+  <style>
+    #error { color: var(--homey-color-red, #d32f2f); margin-top: 12px; }
+    #success { color: var(--homey-color-green, #2e7d32); margin-top: 12px; }
+  </style>
+</head>
+
+<body>
+
+<header class="homey-header">
+  <h1 class="homey-title" data-i18n="repair.login.title"></h1>
+  <p class="homey-subtitle" data-i18n="repair.login.subtitle"></p>
+</header>
+
+<form id="login-form" class="homey-form">
+  <label class="homey-form-label" for="email" data-i18n="pair.login.email"></label>
+  <input id="email" class="homey-form-input" type="email" autocomplete="username" required />
+
+  <label class="homey-form-label" for="password" data-i18n="pair.login.password"></label>
+  <input id="password" class="homey-form-input" type="password" autocomplete="current-password" required />
+
+  <button id="login" class="homey-button-primary" type="submit" data-i18n="pair.login.button"></button>
+</form>
+
+<p id="error" role="alert" aria-live="polite"></p>
+<p id="success" role="status" aria-live="polite"></p>
+
+<script type="application/javascript">
+  (() => {
+    const form = document.getElementById('login-form');
+    const loginButton = document.getElementById('login');
+    const errorElement = document.getElementById('error');
+    const successElement = document.getElementById('success');
+
+    form.addEventListener('submit', async event => {
+      event.preventDefault();
+      errorElement.textContent = '';
+      successElement.textContent = '';
+      loginButton.disabled = true;
+
+      try {
+        await Homey.emit('login', {
+          email: document.getElementById('email').value.trim(),
+          password: document.getElementById('password').value,
+        });
+
+        successElement.textContent = Homey.__('repair.login.success');
+        setTimeout(() => Homey.done(), 1200);
+      } catch (error) {
+        errorElement.textContent = error.message || Homey.__('pair.login.error');
+        loginButton.disabled = false;
+      }
+    });
+  })();
+</script>
+
+</body>
+</html>

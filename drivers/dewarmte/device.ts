@@ -8,7 +8,7 @@ import type { DeWarmteSession } from '../../src/api/session';
 const Homey = require('homey');
 const axios: typeof import('axios') = require('axios');
 
-const { deriveSessionKey } = require('../../src/api/session');
+const { SessionExpiredError, deriveSessionKey } = require('../../src/api/session');
 
 const PUMP_STATE_TRIGGER_CARDS: Record<string, string> = {
   on: 'pump_state_on',
@@ -242,10 +242,55 @@ class DeWarmteDevice extends Homey.Device {
     try {
       await this.poll();
     } catch (err) {
-      this.error(
-        `Initial DeWarmte poll failed, retrying automatically: ${getSafeErrorSummary(err)}`,
-      );
-      await this.setUnavailable(this.homey.__('device.connection_failed'));
+      await this.handlePollError(err);
+    }
+  }
+
+  /**
+   * A connection problem is retried automatically. An expired login can
+   * only be solved by the user via Repair, so polling stops until then.
+   */
+  private async handlePollError(err: unknown): Promise<void> {
+    if (err instanceof SessionExpiredError) {
+      this.error('DeWarmte session expired, waiting for Repair');
+      this.stopPolling();
+      await this.setUnavailable(this.homey.__('device.session_expired'));
+      return;
+    }
+
+    this.error(
+      `Failed to poll DeWarmte product status, retrying automatically: ${getSafeErrorSummary(err)}`,
+    );
+    await this.setUnavailable(this.homey.__('device.connection_failed'));
+  }
+
+  /**
+   * Called by the driver after the user signed in again via Repair.
+   */
+  async repairSession(refreshToken: string, sessionKey: string): Promise<void> {
+    this.log('Repairing DeWarmte session');
+    this.stopPolling();
+
+    if (this.sessionKey) {
+      this.driver.sessions.release(this.sessionKey, this.getId());
+    }
+
+    await this.setStoreValue('refreshToken', refreshToken);
+    await this.setStoreValue('sessionKey', sessionKey);
+    await this.attachSession(refreshToken);
+
+    try {
+      await this.migrateCapabilities();
+    } catch (err) {
+      this.error(`Failed to migrate capabilities: ${getSafeErrorSummary(err)}`);
+    }
+
+    this.startPolling();
+
+    try {
+      await this.poll();
+    } catch (err) {
+      await this.handlePollError(err);
     }
   }
 
@@ -307,10 +352,7 @@ class DeWarmteDevice extends Homey.Device {
 
     this.pollTimer = this.homey.setInterval(() => {
       this.poll().catch(async (err) => {
-        this.error(
-          `Failed to poll DeWarmte product status: ${getSafeErrorSummary(err)}`,
-        );
-        await this.setUnavailable(this.homey.__('device.connection_failed'));
+        await this.handlePollError(err);
       });
     }, 30 * 1000);
 
@@ -391,7 +433,17 @@ class DeWarmteDevice extends Homey.Device {
       throw new Error('DeWarmte session has not been initialized');
     }
 
-    await this.session.refresh();
+    try {
+      await this.session.refresh();
+    } catch (err) {
+      const status = axios.isAxiosError(err) ? err.response?.status : undefined;
+
+      if (status === 400 || status === 401) {
+        throw new SessionExpiredError();
+      }
+
+      throw err;
+    }
   }
 
   async getHeatCurveForView(): Promise<HeatCurve> {

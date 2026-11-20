@@ -172,4 +172,66 @@ export = class DeWarmteDriver extends Homey.Driver {
 
   }
 
+  /**
+   * Repair: sign in again without removing the device, so Flows and
+   * Insights are kept. All devices that shared the expired login are
+   * reconnected at once.
+   */
+  async onRepair(session: PairSession, device: InstanceType<typeof Homey.Device>) {
+    this.log('=== Repair session started ===');
+
+    session.setHandler('login', async ({ email, password }: LoginData) => {
+      const client = new DeWarmteClient();
+      const auth = new AuthService(client);
+      const products = new ProductService(client);
+
+      try {
+        await auth.login(email, password);
+      } catch (err) {
+        this.error(`Repair login failed: ${getSafeErrorSummary(err)}`);
+        throw new Error(this.homey.__('pair.login.error'));
+      }
+
+      let productIds: string[];
+
+      try {
+        const productList: Product[] = await products.getProducts();
+        productIds = productList.map((product) => product.id);
+      } catch (err) {
+        this.error(`Repair product lookup failed: ${getSafeErrorSummary(err)}`);
+        throw new Error(this.homey.__('pair.login.error'));
+      }
+
+      if (!productIds.includes(device.getSetting('productId'))) {
+        throw new Error(this.homey.__('repair.login.wrong_account'));
+      }
+
+      const refreshToken = client.getRefreshToken();
+
+      if (!refreshToken) {
+        throw new Error(this.homey.__('pair.login.error'));
+      }
+
+      const oldSessionKey = device.getStoreValue('sessionKey');
+      const newSessionKey = createSessionKey();
+      const devicesToRepair = this.getDevices().filter(
+        (item: InstanceType<typeof Homey.Device>) => {
+          return item === device || (
+            typeof oldSessionKey === 'string'
+            && oldSessionKey !== ''
+            && item.getStoreValue('sessionKey') === oldSessionKey
+            && productIds.includes(item.getSetting('productId'))
+          );
+        },
+      );
+
+      for (const item of devicesToRepair) {
+        await item.repairSession(refreshToken, newSessionKey);
+      }
+
+      this.log(`Repair successful for ${devicesToRepair.length} device(s)`);
+      return true;
+    });
+  }
+
 }

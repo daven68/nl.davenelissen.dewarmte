@@ -9,10 +9,19 @@
       "error": "Inloggen bij DeWarmte is mislukt."
     }
   },
+  "repair": {
+    "login": {
+      "title": "Opnieuw inloggen bij DeWarmte",
+      "subtitle": "Log opnieuw in met je DeWarmte-account. Je flows en Insights blijven behouden.",
+      "success": "Gelukt! De warmtepomp is weer verbonden.",
+      "wrong_account": "Deze warmtepomp is niet gevonden in dit DeWarmte-account. Log in met het account waarmee je de warmtepomp hebt toegevoegd."
+    }
+  },
   "device": {
-    "session_missing": "DeWarmte-sessie ontbreekt. Koppel het apparaat opnieuw.",
+    "session_missing": "DeWarmte-sessie ontbreekt. Open de apparaatinstellingen en kies onder Onderhoud 'Probeer te repareren' om opnieuw in te loggen.",
     "connection_failed": "Kan geen verbinding maken met DeWarmte.",
-    "disconnected": "Het DeWarmte-apparaat is offline."
+    "disconnected": "Het DeWarmte-apparaat is offline.",
+    "session_expired": "De DeWarmte-login is verlopen. Open de apparaatinstellingen en kies onder Onderhoud 'Probeer te repareren' om opnieuw in te loggen."
   },
   "settings": {
     "diagnostics": {

@@ -5,6 +5,17 @@ import { AuthService } from './auth';
 import { DeWarmteClient } from './client';
 import { ProductService } from './products';
 
+/**
+ * Thrown when the stored login is no longer accepted by DeWarmte. The user
+ * has to sign in again via Repair.
+ */
+export class SessionExpiredError extends Error {
+  constructor() {
+    super('DeWarmte session has expired');
+    this.name = 'SessionExpiredError';
+  }
+}
+
 type RefreshTokenListener = (refreshToken: string) => Promise<void> | void;
 
 /**

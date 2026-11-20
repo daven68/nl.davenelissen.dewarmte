@@ -463,6 +463,11 @@
           "template": "add_devices"
         }
       ],
+      "repair": [
+        {
+          "id": "login"
+        }
+      ],
       "id": "dewarmte"
     }
   ],
