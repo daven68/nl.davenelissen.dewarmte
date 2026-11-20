@@ -75,6 +75,15 @@ export = class DeWarmteDriver extends Homey.Driver {
         return typeof value === 'number' && value > temperature;
       });
 
+    for (const position of ['top', 'bottom']) {
+      this.homey.flow
+        .getConditionCard(`boiler_temperature_${position}_above`)
+        .registerRunListener(({ device, temperature }: { device: Homey.Device; temperature: number }) => {
+          const value = device.getCapabilityValue(`measure_boiler_temperature_${position}`);
+          return typeof value === 'number' && value > temperature;
+        });
+    }
+
     this.homey.flow
       .getConditionCard('cop_today_above')
       .registerRunListener(({ device, cop }: { device: Homey.Device; cop: number }) => {

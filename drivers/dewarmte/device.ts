@@ -889,6 +889,8 @@ class DeWarmteDevice extends Homey.Device {
     const previousOutdoorTemperature = this.getCapabilityValue(
       'measure_outdoor_temperature',
     );
+    const previousBoilerTop = this.getCapabilityValue('measure_boiler_temperature_top');
+    const previousBoilerBottom = this.getCapabilityValue('measure_boiler_temperature_bottom');
     const reportedPumpState = typeof product.status.state === 'string'
       ? product.status.state.trim().toLowerCase()
       : '';
@@ -995,6 +997,19 @@ class DeWarmteDevice extends Homey.Device {
       previousPumpState,
       currentPumpState,
     );
+
+    if (pompT) {
+      await this.triggerNumberFlowCard(
+        'boiler_temperature_top_changed',
+        previousBoilerTop,
+        this.getCapabilityValue('measure_boiler_temperature_top'),
+      );
+      await this.triggerNumberFlowCard(
+        'boiler_temperature_bottom_changed',
+        previousBoilerBottom,
+        this.getCapabilityValue('measure_boiler_temperature_bottom'),
+      );
+    }
 
     if (!pompT) {
       await this.triggerTargetTemperatureFlowCard(

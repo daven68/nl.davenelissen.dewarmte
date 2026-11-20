@@ -269,6 +269,34 @@
             "filter": "driver_id=dewarmte&capabilities=measure_outdoor_temperature"
           }
         ]
+      },
+      {
+        "id": "electric_backup_active_true",
+        "title": {
+          "en": "The DeWarmte Element turned on",
+          "nl": "Het DeWarmte Element is aangegaan"
+        },
+        "args": [
+          {
+            "type": "device",
+            "name": "device",
+            "filter": "driver_id=dewarmte&capabilities=electric_backup_active"
+          }
+        ]
+      },
+      {
+        "id": "electric_backup_active_false",
+        "title": {
+          "en": "The DeWarmte Element turned off",
+          "nl": "Het DeWarmte Element is uitgegaan"
+        },
+        "args": [
+          {
+            "type": "device",
+            "name": "device",
+            "filter": "driver_id=dewarmte&capabilities=electric_backup_active"
+          }
+        ]
       }
     ],
     "conditions": [
@@ -463,6 +491,20 @@
             "step": 0.1
           }
         ]
+      },
+      {
+        "id": "electric_backup_is_active",
+        "title": {
+          "en": "The DeWarmte Element !{{is|isn't}} on",
+          "nl": "Het DeWarmte Element !{{is|is niet}} aan"
+        },
+        "args": [
+          {
+            "type": "device",
+            "name": "device",
+            "filter": "driver_id=dewarmte&capabilities=electric_backup_active"
+          }
+        ]
       }
     ]
   },
@@ -534,6 +576,16 @@
             "en": "Energy consumption",
             "nl": "Energieverbruik"
           }
+        },
+        "electric_backup_active": {
+          "titleTrue": {
+            "en": "On",
+            "nl": "Aan"
+          },
+          "titleFalse": {
+            "en": "Off",
+            "nl": "Uit"
+          }
         }
       },
       "images": {
@@ -591,8 +643,8 @@
     },
     "today": {
       "name": {
-        "en": "Heat Pump COP Today",
-        "nl": "COP vandaag"
+        "en": "Heat Pump COP",
+        "nl": "Warmtepomp COP"
       },
       "height": 110,
       "devices": {
@@ -603,17 +655,77 @@
           "capabilities": "measure_cop_today"
         }
       },
-      "settings": [],
+      "settings": [
+        {
+          "id": "period",
+          "type": "dropdown",
+          "title": {
+            "en": "Period",
+            "nl": "Periode"
+          },
+          "value": "day",
+          "values": [
+            {
+              "id": "day",
+              "title": {
+                "en": "Today",
+                "nl": "Vandaag"
+              }
+            },
+            {
+              "id": "week",
+              "title": {
+                "en": "This week",
+                "nl": "Deze week"
+              }
+            },
+            {
+              "id": "month",
+              "title": {
+                "en": "This month",
+                "nl": "Deze maand"
+              }
+            },
+            {
+              "id": "year",
+              "title": {
+                "en": "This year",
+                "nl": "Dit jaar"
+              }
+            }
+          ]
+        }
+      ],
       "api": {
-        "getToday": {
+        "getCop": {
           "method": "GET",
-          "path": "/today"
+          "path": "/cop"
         }
       },
       "id": "today"
     }
   },
   "capabilities": {
+    "electric_backup_active": {
+      "type": "boolean",
+      "title": {
+        "en": "DeWarmte Element",
+        "nl": "DeWarmte Element"
+      },
+      "getable": true,
+      "setable": false,
+      "uiComponent": "sensor",
+      "uiQuickAction": false,
+      "insights": true,
+      "insightsTitleTrue": {
+        "en": "DeWarmte Element on",
+        "nl": "DeWarmte Element aan"
+      },
+      "insightsTitleFalse": {
+        "en": "DeWarmte Element off",
+        "nl": "DeWarmte Element uit"
+      }
+    },
     "gas_boiler_active": {
       "type": "boolean",
       "title": {
