@@ -10,6 +10,10 @@ type PairSession = import('homey/lib/PairSession');
 const { DeWarmteClient } = require('../../src/api/client');
 const { AuthService } = require('../../src/api/auth');
 const { ProductService } = require('../../src/api/products');
+const {
+  DeWarmteSessionRegistry,
+  createSessionKey,
+} = require('../../src/api/session');
 
 interface LoginData {
   email: string;
@@ -45,6 +49,8 @@ function getSafeErrorSummary(error: unknown): string {
 }
 
 export = class DeWarmteDriver extends Homey.Driver {
+
+  public readonly sessions = new DeWarmteSessionRegistry();
 
   async onInit() {
     this.log('DeWarmte Driver initialized');
@@ -95,6 +101,7 @@ export = class DeWarmteDriver extends Homey.Driver {
     const client = new DeWarmteClient();
     const auth = new AuthService(client);
     const products = new ProductService(client);
+    const sessionKey = createSessionKey();
 
     session.setHandler('login', async ({ email, password }: LoginData) => {
 
@@ -148,6 +155,7 @@ export = class DeWarmteDriver extends Homey.Driver {
 
           store: {
             refreshToken,
+            sessionKey,
           },
 
         }));

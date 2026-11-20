@@ -5,6 +5,27 @@
       "title": {
         "en": "The heat pump status changed",
         "nl": "De warmtepompstatus is gewijzigd"
+      },
+      "tokens": [
+        {
+          "name": "state",
+          "type": "string",
+          "title": {
+            "en": "Status",
+            "nl": "Status"
+          },
+          "example": {
+            "en": "Heating",
+            "nl": "Verwarmen"
+          }
+        }
+      ]
+    },
+    {
+      "id": "pump_state_on",
+      "title": {
+        "en": "The heat pump switched on",
+        "nl": "De warmtepomp is aangegaan"
       }
     },
     {
@@ -40,7 +61,18 @@
       "title": {
         "en": "The target supply temperature changed",
         "nl": "De doelaanvoertemperatuur is gewijzigd"
-      }
+      },
+      "tokens": [
+        {
+          "name": "temperature",
+          "type": "number",
+          "title": {
+            "en": "Target supply temperature",
+            "nl": "Doelaanvoertemperatuur"
+          },
+          "example": 35
+        }
+      ]
     },
     {
       "id": "gas_boiler_active_true",
@@ -91,6 +123,13 @@
             "nl": "Status"
           },
           "values": [
+            {
+              "id": "on",
+              "label": {
+                "en": "On",
+                "nl": "Aan"
+              }
+            },
             {
               "id": "heating",
               "label": {

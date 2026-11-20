@@ -67,5 +67,14 @@
       "loadError": "Could not load heat pump data.",
       "deviceUnavailable": "The heat pump is temporarily unavailable."
     }
+  },
+  "flow": {
+    "pumpState": {
+      "on": "On",
+      "off": "Off",
+      "standby": "Standby",
+      "heating": "Heating",
+      "defrosting": "Defrosting"
+    }
   }
 }

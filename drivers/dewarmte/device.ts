@@ -2,13 +2,21 @@
 
 import type { HeatCurve } from '../../src/domain/HeatCurve';
 import type { Product, TopBarStatus } from '../../src/api/types';
+import type { ProductService as ProductServiceType } from '../../src/api/products';
+import type { DeWarmteSession } from '../../src/api/session';
 
 const Homey = require('homey');
 const axios: typeof import('axios') = require('axios');
 
-const { DeWarmteClient } = require('../../src/api/client');
-const { AuthService } = require('../../src/api/auth');
-const { ProductService } = require('../../src/api/products');
+const { deriveSessionKey } = require('../../src/api/session');
+
+const PUMP_STATE_TRIGGER_CARDS: Record<string, string> = {
+  on: 'pump_state_on',
+  heating: 'pump_state_heating',
+  standby: 'pump_state_standby',
+  defrosting: 'pump_state_defrosting',
+  off: 'pump_state_off',
+};
 
 const COMMON_EXPECTED_STATUS_FIELDS = [
   'time',
@@ -201,9 +209,10 @@ function hasFault(status: Product['status']): boolean {
 class DeWarmteDevice extends Homey.Device {
   private pollTimer?: NodeJS.Timeout;
   private pollInProgress = false;
-  private client?: InstanceType<typeof DeWarmteClient>;
-  private auth?: InstanceType<typeof AuthService>;
-  private products?: InstanceType<typeof ProductService>;
+  private lastStatusSummary?: string;
+  private session?: DeWarmteSession;
+  private sessionKey?: string;
+  private products?: ProductServiceType;
 
   async onInit() {
     this.log('Device onInit()');
@@ -217,25 +226,74 @@ class DeWarmteDevice extends Homey.Device {
       return;
     }
 
-    this.client = new DeWarmteClient();
-    this.client.setRefreshToken(refreshToken);
-    this.auth = new AuthService(this.client);
-    this.products = new ProductService(this.client);
+    await this.attachSession(refreshToken);
 
     try {
       await this.migrateCapabilities();
-      await this.refreshSession();
+    } catch (err) {
+      this.error(`Failed to migrate capabilities: ${getSafeErrorSummary(err)}`);
+    }
+
+    // Always start polling, also when the first attempt fails (for example
+    // when Homey restarts without internet). The next successful poll makes
+    // the device available again.
+    this.startPolling();
+
+    try {
       await this.poll();
-      this.startPolling();
     } catch (err) {
       this.error(
-        `Failed to initialize DeWarmte polling: ${getSafeErrorSummary(err)}`,
+        `Initial DeWarmte poll failed, retrying automatically: ${getSafeErrorSummary(err)}`,
       );
       await this.setUnavailable(this.homey.__('device.connection_failed'));
     }
   }
 
+  async onUninit() {
+    this.stopPolling();
+  }
+
   async onDeleted() {
+    this.stopPolling();
+
+    if (this.sessionKey) {
+      this.driver.sessions.release(this.sessionKey, this.getId());
+    }
+  }
+
+  /**
+   * Connects this device to the session shared by all devices of the same
+   * DeWarmte login, so a refreshed token reaches every device.
+   */
+  private async attachSession(storedRefreshToken: string): Promise<void> {
+    let sessionKey = this.getStoreValue('sessionKey');
+
+    if (typeof sessionKey !== 'string' || !sessionKey) {
+      sessionKey = deriveSessionKey(storedRefreshToken);
+      await this.setStoreValue('sessionKey', sessionKey);
+    }
+
+    const session: DeWarmteSession = this.driver.sessions.get(
+      sessionKey,
+      storedRefreshToken,
+    );
+
+    session.addListener(this.getId(), async (refreshToken: string) => {
+      await this.setStoreValue('refreshToken', refreshToken);
+    });
+
+    const currentRefreshToken = session.client.getRefreshToken();
+
+    if (currentRefreshToken && currentRefreshToken !== storedRefreshToken) {
+      await this.setStoreValue('refreshToken', currentRefreshToken);
+    }
+
+    this.sessionKey = sessionKey;
+    this.session = session;
+    this.products = session.products;
+  }
+
+  private stopPolling(): void {
     if (this.pollTimer) {
       this.homey.clearInterval(this.pollTimer);
       this.pollTimer = undefined;
@@ -303,6 +361,10 @@ class DeWarmteDevice extends Homey.Device {
     let isConnected: boolean;
 
     try {
+      if (!this.session?.client.getAccessToken()) {
+        await this.refreshSession();
+      }
+
       try {
         isConnected = await this.updateCapabilities();
       } catch (err) {
@@ -325,19 +387,11 @@ class DeWarmteDevice extends Homey.Device {
   }
 
   private async refreshSession(): Promise<void> {
-    if (!this.client || !this.auth) {
-      throw new Error('DeWarmte client has not been initialized');
+    if (!this.session) {
+      throw new Error('DeWarmte session has not been initialized');
     }
 
-    const previousRefreshToken = this.client.getRefreshToken();
-
-    await this.auth.refreshAccessToken();
-
-    const refreshToken = this.client.getRefreshToken();
-
-    if (refreshToken && refreshToken !== previousRefreshToken) {
-      await this.setStoreValue('refreshToken', refreshToken);
-    }
+    await this.session.refresh();
   }
 
   async getHeatCurveForView(): Promise<HeatCurve> {
@@ -540,9 +594,12 @@ class DeWarmteDevice extends Homey.Device {
     await this.setCapabilityValue(capability, value);
   }
 
-  private async triggerFlowCard(cardId: string): Promise<void> {
+  private async triggerFlowCard(
+    cardId: string,
+    tokens: Record<string, unknown> = {},
+  ): Promise<void> {
     try {
-      await this.homey.flow.getDeviceTriggerCard(cardId).trigger(this);
+      await this.homey.flow.getDeviceTriggerCard(cardId).trigger(this, tokens);
     } catch (error) {
       this.error(`Failed to trigger Flow card ${cardId}: ${getSafeErrorSummary(error)}`);
     }
@@ -560,22 +617,52 @@ class DeWarmteDevice extends Homey.Device {
       return;
     }
 
-    const stateTriggerCards: Record<string, string> = {
-      heating: 'pump_state_heating',
-      standby: 'pump_state_standby',
-      defrosting: 'pump_state_defrosting',
-      off: 'pump_state_off',
-    };
-    const stateTriggerCard = stateTriggerCards[currentState];
+    await this.triggerFlowCard('pump_state_changed', {
+      state: this.homey.__(`flow.pumpState.${currentState}`) || currentState,
+    });
+
+    const stateTriggerCard = PUMP_STATE_TRIGGER_CARDS[currentState];
 
     if (stateTriggerCard) {
       await this.triggerFlowCard(stateTriggerCard);
     }
   }
 
-  private async updateCapabilities(): Promise<boolean> {
-    this.log('refreshDevice() called');
+  private async triggerBooleanFlowCards(
+    capability: string,
+    previousValue: unknown,
+    currentValue: unknown,
+  ): Promise<void> {
+    if (
+      typeof previousValue !== 'boolean'
+      || typeof currentValue !== 'boolean'
+      || previousValue === currentValue
+    ) {
+      return;
+    }
 
+    await this.triggerFlowCard(`${capability}_${currentValue}`);
+  }
+
+  private async triggerTargetTemperatureFlowCard(
+    previousValue: unknown,
+    currentValue: unknown,
+  ): Promise<void> {
+    if (
+      typeof previousValue !== 'number'
+      || typeof currentValue !== 'number'
+      || !Number.isFinite(currentValue)
+      || previousValue === currentValue
+    ) {
+      return;
+    }
+
+    await this.triggerFlowCard('measure_target_temperature_changed', {
+      temperature: currentValue,
+    });
+  }
+
+  private async updateCapabilities(): Promise<boolean> {
     const product = await this.getCurrentProduct();
     const pompT = isPompT(product.type || this.getSetting('model'));
     let topBarStatus: TopBarStatus | null = null;
@@ -597,6 +684,11 @@ class DeWarmteDevice extends Homey.Device {
       ? topBarStatus.is_thermostat_on
       : product.status.thermostat;
     const previousPumpState = this.getCapabilityValue('pump_state');
+    const previousTargetTemperature = this.getCapabilityValue(
+      'measure_target_temperature',
+    );
+    const previousGasBoiler = this.getCapabilityValue('gas_boiler_active');
+    const previousThermostat = this.getCapabilityValue('thermostat_active');
     const reportedPumpState = typeof product.status.state === 'string'
       ? product.status.state.trim().toLowerCase()
       : '';
@@ -613,13 +705,11 @@ class DeWarmteDevice extends Homey.Device {
       currentPumpState = normalizedPumpState;
     }
 
-    this.log('Product status received');
-
     const errors = Array.isArray(product.status.errors) ? product.status.errors : [];
     const hasAlarm = hasFault(product.status);
 
-    this.log(
-      `Status updated: actual=${product.status.actual_temperature}, `
+    const statusSummary = (
+      `Status: actual=${product.status.actual_temperature}, `
       + `target=${product.status.target_temperature}, `
       + `state=${reportedPumpState || 'missing'}, `
       + `mappedState=${currentPumpState}, `
@@ -628,8 +718,14 @@ class DeWarmteDevice extends Homey.Device {
       + `gasBoiler=${currentGasBoiler}, `
       + `gasBoilerReported=${product.status.gas_boiler === true}, `
       + `thermostat=${currentThermostat}, `
-      + `hasAlarm=${hasAlarm}`,
+      + `hasAlarm=${hasAlarm}`
     );
+
+    // Only log when the status actually changed, to keep the logs readable.
+    if (statusSummary !== this.lastStatusSummary) {
+      this.log(statusSummary);
+      this.lastStatusSummary = statusSummary;
+    }
 
     const capabilityUpdates: Promise<void>[] = [
       this.setCapabilityValueIfPresent('pump_active', product.status.is_on),
@@ -693,7 +789,22 @@ class DeWarmteDevice extends Homey.Device {
       currentPumpState,
     );
 
-    this.log('Capabilities updated');
+    if (!pompT) {
+      await this.triggerTargetTemperatureFlowCard(
+        previousTargetTemperature,
+        this.getCapabilityValue('measure_target_temperature'),
+      );
+      await this.triggerBooleanFlowCards(
+        'gas_boiler_active',
+        previousGasBoiler,
+        this.getCapabilityValue('gas_boiler_active'),
+      );
+      await this.triggerBooleanFlowCards(
+        'thermostat_active',
+        previousThermostat,
+        this.getCapabilityValue('thermostat_active'),
+      );
+    }
 
     return product.status.is_connected !== false;
   }

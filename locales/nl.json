@@ -67,5 +67,14 @@
       "loadError": "De warmtepompgegevens konden niet worden geladen.",
       "deviceUnavailable": "De warmtepomp is tijdelijk niet beschikbaar."
     }
+  },
+  "flow": {
+    "pumpState": {
+      "on": "Aan",
+      "off": "Uit",
+      "standby": "Stand-by",
+      "heating": "Verwarmen",
+      "defrosting": "Ontdooicyclus"
+    }
   }
 }
