@@ -1,7 +1,7 @@
 {
   "name": {
-    "en": "Heat Pump COP Today",
-    "nl": "COP vandaag"
+    "en": "Heat Pump COP",
+    "nl": "Warmtepomp COP"
   },
   "height": 110,
   "devices": {
@@ -12,11 +12,51 @@
       "capabilities": "measure_cop_today"
     }
   },
-  "settings": [],
+  "settings": [
+    {
+      "id": "period",
+      "type": "dropdown",
+      "title": {
+        "en": "Period",
+        "nl": "Periode"
+      },
+      "value": "day",
+      "values": [
+        {
+          "id": "day",
+          "title": {
+            "en": "Today",
+            "nl": "Vandaag"
+          }
+        },
+        {
+          "id": "week",
+          "title": {
+            "en": "This week",
+            "nl": "Deze week"
+          }
+        },
+        {
+          "id": "month",
+          "title": {
+            "en": "This month",
+            "nl": "Deze maand"
+          }
+        },
+        {
+          "id": "year",
+          "title": {
+            "en": "This year",
+            "nl": "Dit jaar"
+          }
+        }
+      ]
+    }
+  ],
   "api": {
-    "getToday": {
+    "getCop": {
       "method": "GET",
-      "path": "/today"
+      "path": "/cop"
     }
   }
 }

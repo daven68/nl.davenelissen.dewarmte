@@ -1,17 +1,19 @@
 'use strict';
 
 const copElement = document.getElementById('cop-today');
+const titleElement = document.getElementById('title');
 const errorElement = document.getElementById('error-message');
 
 let widgetHomey;
 let selectedDeviceId;
+let period = 'day';
 
 function translate(key) {
   return widgetHomey.__(`widget.today.${key}`);
 }
 
 function render(status) {
-  const cop = status.copToday;
+  const { cop } = status;
   copElement.textContent = typeof cop === 'number' && Number.isFinite(cop)
     ? cop.toFixed(1)
     : '--';
@@ -26,7 +28,8 @@ async function refresh() {
   try {
     const status = await widgetHomey.api(
       'GET',
-      `/today?deviceId=${encodeURIComponent(selectedDeviceId)}`,
+      `/cop?deviceId=${encodeURIComponent(selectedDeviceId)}`
+        + `&period=${encodeURIComponent(period)}`,
       {},
     );
     render(status);
@@ -39,6 +42,8 @@ async function refresh() {
 window.onHomeyReady = (Homey) => {
   widgetHomey = Homey;
   [selectedDeviceId] = Homey.getDeviceIds();
+  period = (Homey.getSettings() || {}).period || 'day';
+  titleElement.textContent = translate(period);
 
   document.querySelectorAll('[data-i18n]').forEach((element) => {
     element.textContent = translate(element.getAttribute('data-i18n'));

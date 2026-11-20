@@ -1,7 +1,9 @@
 'use strict';
 
+const PERIODS = ['day', 'week', 'month', 'year'];
+
 module.exports = {
-  async getToday({ homey, query }) {
+  async getCop({ homey, query }) {
     if (typeof query.deviceId !== 'string' || !query.deviceId) {
       throw new Error('No DeWarmte device selected');
     }
@@ -14,11 +16,12 @@ module.exports = {
       throw new Error('Selected DeWarmte device was not found');
     }
 
+    const period = PERIODS.includes(query.period) ? query.period : 'day';
+
     return {
       available: device.getAvailable(),
-      copToday: device.hasCapability('measure_cop_today')
-        ? device.getCapabilityValue('measure_cop_today')
-        : null,
+      period,
+      cop: await device.getCopForPeriod(period),
     };
   },
 };

@@ -4,7 +4,12 @@ import Homey from 'homey';
 import axios from 'axios';
 
 import type { HeatCurve } from '../../src/domain/HeatCurve';
-import type { Product, TopBarStatus } from '../../src/api/types';
+import type {
+  InsightsTimespan,
+  Product,
+  ProductInsights,
+  TopBarStatus,
+} from '../../src/api/types';
 import {
   DeWarmteSession,
   DeWarmteSessionRegistry,
@@ -185,6 +190,50 @@ function formatLocalDate(date: Date, timeZone: string): string {
   return `${part('year')}-${part('month')}-${part('day')}`;
 }
 
+export type CopPeriod = 'day' | 'week' | 'month' | 'year';
+
+/** How long a week/month/year COP is reused before asking DeWarmte again. */
+const PERIOD_COP_CACHE_MS = 15 * 60 * 1000;
+
+/**
+ * Start date and resolution of a period, exactly as the DeWarmte app uses
+ * them: the week starts on Monday, the month on the 1st, the year on 1 Jan.
+ */
+function getPeriodRequest(
+  period: CopPeriod,
+  now: Date,
+  timeZone: string,
+): { startDate: string; timespan: InsightsTimespan } {
+  const today = formatLocalDate(now, timeZone);
+  const [year, month, day] = today.split('-').map(Number);
+
+  switch (period) {
+    case 'week': {
+      // Calendar date arithmetic in UTC avoids daylight saving surprises.
+      const date = new Date(Date.UTC(year, month - 1, day));
+      const daysSinceMonday = (date.getUTCDay() + 6) % 7;
+      date.setUTCDate(date.getUTCDate() - daysSinceMonday);
+      return { startDate: date.toISOString().slice(0, 10), timespan: 'daily' };
+    }
+    case 'month':
+      return { startDate: `${today.slice(0, 8)}01`, timespan: 'weekly' };
+    case 'year':
+      return { startDate: `${year}-01-01`, timespan: 'monthly' };
+    default:
+      return { startDate: today, timespan: 'hourly' };
+  }
+}
+
+function toCop(insights: ProductInsights): number | null {
+  return typeof insights.cop === 'number'
+    && Number.isFinite(insights.cop)
+    && insights.cop > 0
+    && typeof insights.electricity_sum === 'number'
+    && insights.electricity_sum > 0
+    ? Math.round(insights.cop * 10) / 10
+    : null;
+}
+
 /** Longer gaps between two measurements are not counted in the kWh meter. */
 const MAX_ENERGY_GAP_MS = 5 * 60 * 1000;
 
@@ -222,6 +271,7 @@ class DeWarmteDevice extends Homey.Device {
   private lastStatusSummary?: string;
   private lastPowerSample?: { at: number; kw: number };
   private lastInsightsAt = 0;
+  private readonly periodCopCache = new Map<CopPeriod, { at: number; value: number | null }>();
   private session?: DeWarmteSession;
   private sessionKey?: string;
 
@@ -569,6 +619,39 @@ class DeWarmteDevice extends Homey.Device {
   }
 
   /**
+   * COP over a period, for the dashboard widget. The day value comes from the
+   * device itself; week, month and year are fetched from DeWarmte and kept
+   * for 15 minutes.
+   */
+  async getCopForPeriod(period: CopPeriod): Promise<number | null> {
+    if (period === 'day') {
+      const value = this.getCapabilityValue('measure_cop_today');
+      return typeof value === 'number' ? value : null;
+    }
+
+    const cached = this.periodCopCache.get(period);
+
+    if (cached && Date.now() - cached.at < PERIOD_COP_CACHE_MS) {
+      return cached.value;
+    }
+
+    const { startDate, timespan } = getPeriodRequest(
+      period,
+      new Date(),
+      this.homey.clock.getTimezone(),
+    );
+    const insights = await this.getSession().getInsights(
+      this.getProductId(),
+      startDate,
+      timespan,
+    );
+    const value = toCop(insights);
+
+    this.periodCopCache.set(period, { at: Date.now(), value });
+    return value;
+  }
+
+  /**
    * Electric backup heater (element). Not every installation has one, so the
    * capability is only added the first time the heat pump reports it being
    * used; installations without an element never see it.
@@ -607,24 +690,22 @@ class DeWarmteDevice extends Homey.Device {
     this.lastInsightsAt = Date.now();
 
     try {
-      const today = formatLocalDate(new Date(), this.homey.clock.getTimezone());
+      const { startDate, timespan } = getPeriodRequest(
+        'day',
+        new Date(),
+        this.homey.clock.getTimezone(),
+      );
       const insights = await this.getSession().getInsights(
         this.getProductId(),
-        today,
-        'hourly', // = the "Day" tab of the DeWarmte app
+        startDate,
+        timespan,
       );
       const kwh = (value: unknown) => (
         typeof value === 'number' && Number.isFinite(value) && value >= 0
           ? Math.round(value * 10) / 10
           : null
       );
-      const cop = typeof insights.cop === 'number'
-        && Number.isFinite(insights.cop)
-        && insights.cop > 0
-        && typeof insights.electricity_sum === 'number'
-        && insights.electricity_sum > 0
-        ? Math.round(insights.cop * 10) / 10
-        : null;
+      const cop = toCop(insights);
 
       await this.setCapabilityValue('measure_cop_today', cop);
       await this.setCapabilityValueIfPresent(

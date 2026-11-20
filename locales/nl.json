@@ -77,10 +77,13 @@
       "deviceUnavailable": "De warmtepomp is tijdelijk niet beschikbaar."
     },
     "today": {
-      "cop": "COP vandaag",
+      "day": "COP vandaag",
+      "week": "COP deze week",
+      "month": "COP deze maand",
+      "year": "COP dit jaar",
       "subtitle": "Rendement van je warmtepomp",
       "selectDevice": "Selecteer een DeWarmte-warmtepomp in de widgetinstellingen.",
-      "loadError": "De COP van vandaag kon niet worden geladen.",
+      "loadError": "De COP kon niet worden geladen.",
       "deviceUnavailable": "De warmtepomp is tijdelijk niet beschikbaar."
     }
   },

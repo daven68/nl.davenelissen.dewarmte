@@ -77,10 +77,13 @@
       "deviceUnavailable": "The heat pump is temporarily unavailable."
     },
     "today": {
-      "cop": "COP today",
+      "day": "COP today",
+      "week": "COP this week",
+      "month": "COP this month",
+      "year": "COP this year",
       "subtitle": "Efficiency of your heat pump",
       "selectDevice": "Select a DeWarmte heat pump in the widget settings.",
-      "loadError": "Today's COP could not be loaded.",
+      "loadError": "The COP could not be loaded.",
       "deviceUnavailable": "The heat pump is temporarily unavailable."
     }
   },
