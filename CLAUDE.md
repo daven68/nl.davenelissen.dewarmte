@@ -42,6 +42,10 @@ Eigenaar: Dave (daven68). Communiceer in het **Nederlands**. Dave heeft zelf all
 
 ## Status (november 2026)
 - 1.2.9 wacht op goedkeuring door Athom; 1.3.0 is klaar maar wordt pas gepubliceerd na die goedkeuring. Nieuwe wijzigingen tot dan onder 1.3.0.
-- Na publicatie 1.3.0: bericht aan Wilco in issue #1 (excuus voor late reactie + 3 nieuwe rapporten vragen), issues #2 en #3 bekijken.
+- Plan: zodra Athom 1.2.9 goedkeurt, meteen 1.3.0 publiceren (pas na akkoord van Dave). 1.3.0 staat al op Daves Homey (homey app install, 20 nov 2026).
+- Na publicatie 1.3.0:
+  - Wilco, issue #1: excuus voor de late reactie en 3 nieuwe rapporten vragen.
+  - Ronald, issue #2: status koelen zit erin; vragen om een diagnoserapport v2 terwijl de pomp koelt (om te bevestigen dat `state` dan `cooling` is).
+  - Michiel, issue #3: iconen zitten erin, forken is niet meer nodig.
 - John is al per mail geïnformeerd over de herstelde cv-ketelmelding (issue #4).
 - Ideeën: stooklijn alleen tonen; Pomp T-warmwatergegevens; boost/stooklijn bedienen pas na overleg.

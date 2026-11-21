@@ -705,9 +705,8 @@ class DeWarmteDevice extends Homey.Device {
       await this.addCapability('electric_backup_active');
     }
 
-    const previous = this.getCapabilityValue('electric_backup_active');
+    // Homey itself runs electric_backup_active_true/_false on a change.
     await this.setCapabilityValue('electric_backup_active', active);
-    await this.triggerBooleanFlowCards('electric_backup_active', previous, active);
   }
 
   /**
@@ -843,22 +842,6 @@ class DeWarmteDevice extends Homey.Device {
     }
   }
 
-  private async triggerBooleanFlowCards(
-    capability: string,
-    previousValue: unknown,
-    currentValue: unknown,
-  ): Promise<void> {
-    if (
-      typeof previousValue !== 'boolean'
-      || typeof currentValue !== 'boolean'
-      || previousValue === currentValue
-    ) {
-      return;
-    }
-
-    await this.triggerFlowCard(`${capability}_${currentValue}`);
-  }
-
   private async triggerNumberFlowCard(
     cardId: string,
     previousValue: unknown,
@@ -921,8 +904,6 @@ class DeWarmteDevice extends Homey.Device {
     const previousTargetTemperature = this.getCapabilityValue(
       'measure_target_temperature',
     );
-    const previousGasBoiler = this.getCapabilityValue('gas_boiler_active');
-    const previousThermostat = this.getCapabilityValue('thermostat_active');
     const previousOutdoorTemperature = this.getCapabilityValue(
       'measure_outdoor_temperature',
     );
@@ -1044,20 +1025,10 @@ class DeWarmteDevice extends Homey.Device {
         previousTargetTemperature,
         this.getCapabilityValue('measure_target_temperature'),
       );
-      await this.triggerBooleanFlowCards(
-        'gas_boiler_active',
-        previousGasBoiler,
-        this.getCapabilityValue('gas_boiler_active'),
-      );
       await this.triggerNumberFlowCard(
         'outdoor_temperature_changed',
         previousOutdoorTemperature,
         this.getCapabilityValue('measure_outdoor_temperature'),
-      );
-      await this.triggerBooleanFlowCards(
-        'thermostat_active',
-        previousThermostat,
-        this.getCapabilityValue('thermostat_active'),
       );
     }
 
