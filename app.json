@@ -1,7 +1,7 @@
 {
   "_comment": "This file is generated. Please edit .homeycompose/app.json instead.",
   "id": "nl.davenelissen.dewarmte",
-  "version": "1.3.0",
+  "version": "1.4.0",
   "compatibility": ">=12.4.0",
   "sdk": 3,
   "brandColor": "#1273DC",
@@ -917,6 +917,24 @@
         "en": "Gas boiler inactive",
         "nl": "Cv-ketel niet actief"
       }
+    },
+    "measure_backup_today": {
+      "type": "number",
+      "title": {
+        "en": "Backup heater today",
+        "nl": "Bijverwarming vandaag"
+      },
+      "icon": "/assets/icons/element.svg",
+      "getable": true,
+      "setable": false,
+      "uiComponent": "sensor",
+      "units": {
+        "en": "kWh",
+        "nl": "kWh"
+      },
+      "decimals": 1,
+      "min": 0,
+      "insights": true
     },
     "measure_boiler_temperature_bottom": {
       "type": "number",

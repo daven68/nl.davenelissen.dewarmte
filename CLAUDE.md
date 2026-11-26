@@ -29,11 +29,18 @@ Eigenaar: Dave (daven68). Communiceer in het **Nederlands**. Dave heeft zelf all
 - Login: `POST /auth/token/`, verversen: `POST /auth/token/refresh/` (400/401 = login verlopen → SessionExpiredError → gebruiker gebruikt "Probeer te repareren").
 - Status: `GET /customer/products/` (alle pompen + status), `GET /customer/products/tb-status/` (accountbreed: thermostaat, cv-ketel, buitentemperatuur).
 - Insights: `GET /customer/products/{id}/insights/?start_date=YYYY-MM-DD&timespan=<resolutie>`.
-  - timespan is de **resolutie**, niet de periode: Now=`current`, Day=`hourly`, Week=`daily`, Month=`weekly`, Year=`monthly`, All=`yearly`. (`day` geeft HTTP 400.)
+  - timespan is de **resolutie**, niet de periode: Day=`hourly`, Week=`daily`, Month=`weekly`, Year=`monthly`, All=`yearly`. (`day` en `current` geven HTTP 400.)
   - Periodes zoals de DeWarmte-app: week vanaf maandag, maand vanaf de 1e, jaar vanaf 1 januari.
   - Antwoord o.a.: `cop`, `heat_sum` (geleverde warmte, kWh), `electricity_sum` (kWh), `electric_backup_usage_sum`, `has_dwe`.
+  - DeWarmte werkt de kWh-tellers één keer per uur bij, ±1 minuut na het hele uur. Uurblok "19:00" = verbruik 18:00–19:00.
+  - `electric_backup_usage_sum` (= `dwe_consumption`) is het kWh-verbruik van het DeWarmte Element. Het zit niet in `electricity_sum` en niet in `cop` (`cop` = `heat_sum / electricity_sum`); `heat_sum` bevat de warmte van het Element wel.
 - Instellingen lezen: `GET /customer/products/{id}/settings/` (bevat o.a. stooklijn; voor Pomp T vermoedelijk `setpoint`, `warm_water_is_scheduled`, `warm_water_ranges`, `legionella_protection_day/_time`, `has_element`, `advanced_boost_mode_control`).
 - Bron: de code van mydewarmte.com (`main.dart.js`, Flutter). De Home Assistant-integratie gebruikt de Insights-API niet.
+
+## Pomp MP met DeWarmte Element (Marc, nov 2026)
+- `status.electricity_consumption` is alleen de compressor. `status.electric_backup_usage` blijft 0 terwijl het Element draait; een live-vermogen van het Element bestaat niet in de API. Aan/uit staat alleen in `tb-status.is_element_on`.
+- Het Element staat ook als apart product `MPE` in `/customer/products/` (lege status, Insights geeft HTTP 400).
+- Daarom: Element-kWh per uur uit Insights in `meter_power` en `measure_backup_today`; `measure_power` blijft alleen de compressor (geen schattingen).
 
 ## Pomp T
 - Statusvelden (rapport Wilco, juli 2026): `top_boiler_temp`, `bottom_boiler_temp`, `is_on`, `heat_input/output`, `electricity_consumption`, `water_flow`, `gas_boiler`, `errors`, `is_connected`. Geen `state`, `fault_code`, `is_element_on`.

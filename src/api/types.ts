@@ -69,6 +69,10 @@ export interface ProductInsights {
   timespan?: string;
   heat_sum?: number;
   electricity_sum?: number;
+  /** kWh used by the DeWarmte Element; not part of electricity_sum or cop. */
+  electric_backup_usage_sum?: number;
+  has_dwe?: boolean;
+  has_element?: boolean;
   cop?: number;
 }
 
