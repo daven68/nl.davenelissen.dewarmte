@@ -1,0 +1,18 @@
+{
+  "type": "number",
+  "title": {
+    "en": "Backup heater today",
+    "nl": "Bijverwarming vandaag"
+  },
+  "icon": "/assets/icons/element.svg",
+  "getable": true,
+  "setable": false,
+  "uiComponent": "sensor",
+  "units": {
+    "en": "kWh",
+    "nl": "kWh"
+  },
+  "decimals": 1,
+  "min": 0,
+  "insights": true
+}

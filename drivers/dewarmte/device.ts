@@ -208,6 +208,22 @@ function formatLocalDate(date: Date, timeZone: string): string {
   return `${part('year')}-${part('month')}-${part('day')}`;
 }
 
+/** Time (HH:MM, 24 h) in the given time zone. */
+function formatLocalTime(date: Date, timeZone: string): string {
+  return new Intl.DateTimeFormat('en-GB', {
+    timeZone,
+    hour: '2-digit',
+    minute: '2-digit',
+    hourCycle: 'h23',
+  }).format(date);
+}
+
+/**
+ * DeWarmte updates the kWh totals of the past hour a minute or two after the
+ * hour. Yesterday's last hour is only settled after this time of day.
+ */
+const BACKUP_SETTLE_TIME = '00:15';
+
 export type CopPeriod = 'day' | 'week' | 'month' | 'year';
 
 /** How long a week/month/year COP is reused before asking DeWarmte again. */
@@ -688,10 +704,13 @@ class DeWarmteDevice extends Homey.Device {
   private async updateElectricBackup(
     status: Product['status'],
     pompT: boolean,
+    topBarElementOn: unknown,
   ): Promise<void> {
     // The Pomp T reports its electric heater as `gas_boiler`; that is what the
-    // DeWarmte web app shows as the electric heater of a Pomp T.
+    // DeWarmte web app shows as the electric heater of a Pomp T. A Pomp MP
+    // only reports its Element in the top bar status.
     const active = status.is_element_on === true
+      || topBarElementOn === true
       || (pompT && status.gas_boiler === true)
       || (typeof status.electric_backup_usage === 'number'
         && status.electric_backup_usage > 0);
@@ -750,8 +769,92 @@ class DeWarmteDevice extends Homey.Device {
         'measure_electricity_today',
         kwh(insights.electricity_sum),
       );
+
+      const backupKwh = kwh(insights.electric_backup_usage_sum);
+
+      if (
+        !this.hasCapability('measure_backup_today')
+        && (insights.has_dwe === true || (backupKwh !== null && backupKwh > 0))
+      ) {
+        this.log('DeWarmte Element usage reported, adding capability');
+        await this.addCapability('measure_backup_today');
+      }
+
+      await this.setCapabilityValueIfPresent('measure_backup_today', backupKwh);
+      await this.addBackupEnergy(startDate, insights.electric_backup_usage_sum);
     } catch (err) {
       this.error(`Daily insights unavailable: ${getSafeErrorSummary(err)}`);
+    }
+  }
+
+  /**
+   * DeWarmte does not report the live power of the DeWarmte Element, only its
+   * real kWh per hour. Every increase of today's total is added to the kWh
+   * meter, so Homey Energy counts the Element about an hour late, but exactly.
+   */
+  private async addBackupEnergy(date: string, todayKwh: unknown): Promise<void> {
+    if (
+      typeof todayKwh !== 'number'
+      || !Number.isFinite(todayKwh)
+      || todayKwh < 0
+      || !this.hasCapability('meter_power')
+    ) {
+      return;
+    }
+
+    const previous = this.getStoreValue('backupMeter') as
+      | { date: string; kwh: number }
+      | null;
+    let addedKwh = 0;
+
+    if (previous?.date === date) {
+      addedKwh = todayKwh - previous.kwh;
+    } else if (previous) {
+      // A new day: first wait until yesterday's last hour is in, then add
+      // what was still missing from yesterday plus everything of today.
+      const timeZone = this.homey.clock.getTimezone();
+
+      if (formatLocalTime(new Date(), timeZone) < BACKUP_SETTLE_TIME) {
+        return;
+      }
+
+      addedKwh = todayKwh + await this.getRemainingBackupKwh(previous);
+    }
+
+    if (addedKwh > 0) {
+      const current = Number(this.getCapabilityValue('meter_power')) || 0;
+
+      await this.setCapabilityValue(
+        'meter_power',
+        Math.round((current + addedKwh) * 10000) / 10000,
+      );
+    }
+
+    // The first time, only remember where today's total stands.
+    await this.setStoreValue('backupMeter', {
+      date,
+      kwh: previous?.date === date ? Math.max(previous.kwh, todayKwh) : todayKwh,
+    });
+  }
+
+  /** Element kWh of an earlier day that was not yet added to the meter. */
+  private async getRemainingBackupKwh(
+    previous: { date: string; kwh: number },
+  ): Promise<number> {
+    try {
+      const insights = await this.getSession().getInsights(
+        this.getProductId(),
+        previous.date,
+        'hourly',
+      );
+      const total = insights.electric_backup_usage_sum;
+
+      return typeof total === 'number' && Number.isFinite(total)
+        ? Math.max(0, total - previous.kwh)
+        : 0;
+    } catch (err) {
+      this.error(`Element usage of ${previous.date} unavailable: ${getSafeErrorSummary(err)}`);
+      return 0;
     }
   }
 
@@ -999,7 +1102,11 @@ class DeWarmteDevice extends Homey.Device {
     }
 
     await Promise.all(capabilityUpdates);
-    await this.updateElectricBackup(product.status, pompT);
+    await this.updateElectricBackup(
+      product.status,
+      pompT,
+      topBarStatus?.is_element_on,
+    );
     await this.updateDailyInsights();
 
     await this.triggerPumpStateFlowCards(
